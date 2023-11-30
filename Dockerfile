@@ -18,7 +18,7 @@ RUN mkdir /var/cache/nginx/uwsgi_temp
 RUN mkdir /var/cache/nginx/scgi_temp
 
 # Expose port 80
-EXPOSE 80
+EXPOSE 8080
 
 # Start NGINX
 CMD ["nginx", "-g", "daemon off;"]
