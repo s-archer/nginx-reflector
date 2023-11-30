@@ -16,3 +16,36 @@ jobs:
     - uses: actions/checkout@v2
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag nginx-reflector:$(date +%s)
+
+
+
+# Defines two custom environment variables for the workflow. These are used for the Container registry domain, and a name for the Docker image that this workflow builds.
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build_and_upload:
+    - name: Checkout project
+      uses: actions/checkout@v2
+      
+    - name: Build image
+      run: |
+        # Use the official NGINX base image
+        FROM nginx
+        # Copy the NGINX configuration file with the custom capture-headers location
+        COPY nginx.conf /etc/nginx/nginx.conf
+        # Create a directory for the site content
+        WORKDIR /usr/share/nginx/html
+        # Create an index.html file (optional)
+        RUN echo "Hello, NGINX!" > index.html
+        # Expose port 80
+        EXPOSE 80
+        # Start NGINX
+        CMD ["nginx", "-g", "daemon off;"]
+        EOF
+
+    - name: Upload image
+      uses: ishworkh/container-image-artifact-upload@v1.0.0
+      with:
+        image: "test_image:latest"
