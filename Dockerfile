@@ -14,6 +14,7 @@ RUN echo "Hello, NGINX!" > index.html
 RUN mkdir /var/cache/nginx/client_temp
 RUN mkdir /var/cache/nginx/proxy_temp
 RUN mkdir /var/cache/nginx/fastcgi_temp
+RUN mkdir /var/cache/nginx/uwsgi_temp
 
 # Expose port 80
 EXPOSE 80
