@@ -17,7 +17,7 @@ RUN mkdir /var/cache/nginx/fastcgi_temp
 RUN mkdir /var/cache/nginx/uwsgi_temp
 RUN mkdir /var/cache/nginx/scgi_temp
 RUN mkdir -p /etc/systemd/system/nginx.service.d
-RUN touch /var/run/nginx.pid && chown -R nginx:nginx /run/nginx.pid /cache/nginx
+RUN touch /var/run/nginx.pid && chown -R nginx:nginx /var/run/nginx.pid /var/cache/nginx
 
 # Expose port 80
 EXPOSE 8080
