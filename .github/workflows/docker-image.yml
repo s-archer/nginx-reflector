@@ -1,33 +1,45 @@
-name: Docker Image CI
+name: Docker Build and Publish
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
-  build_and_upload:
-    - name: Checkout project
-      uses: actions/checkout@v2
-      
-    - name: Build image
-      run: |
-        # Use the official NGINX base image
-        FROM nginx
-        # Copy the NGINX configuration file with the custom capture-headers location
-        COPY nginx.conf /etc/nginx/nginx.conf
-        # Create a directory for the site content
-        WORKDIR /usr/share/nginx/html
-        # Create an index.html file (optional)
-        RUN echo "Hello, NGINX!" > index.html
-        # Expose port 80
-        EXPOSE 80
-        # Start NGINX
-        CMD ["nginx", "-g", "daemon off;"]
-        EOF
+  build:
+    runs-on: ubuntu-latest
 
-    - name: Upload image
-      uses: ishworkh/container-image-artifact-upload@v1.0.0
-      with:
-        image: "test_image:latest"
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Login to GitHub Container Registry
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+    - name: Build and push Docker image
+      run: |
+        docker buildx create --use -
+        docker buildx inspect
+        docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/${{ github.repository_owner }}/${{ github.repository_name }}:latest - <<EOF
+# Use the official NGINX base image
+FROM nginx
+
+# Copy the NGINX configuration file with the custom capture-headers location
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Create a directory for the site content
+WORKDIR /usr/share/nginx/html
+
+# Create an index.html file (optional)
+RUN echo "Hello, NGINX!" > index.html
+
+# Expose port 80
+EXPOSE 80
+
+# Start NGINX
+CMD ["nginx", "-g", "daemon off;"]
+EOF
+        docker push ghcr.io/${{ github.repository_owner }}/${{ github.repository_name }}:latest
