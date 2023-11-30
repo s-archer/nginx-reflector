@@ -16,6 +16,8 @@ RUN mkdir /var/cache/nginx/proxy_temp
 RUN mkdir /var/cache/nginx/fastcgi_temp
 RUN mkdir /var/cache/nginx/uwsgi_temp
 RUN mkdir /var/cache/nginx/scgi_temp
+RUN mkdir -p /etc/systemd/system/nginx.service.d
+RUN echo "[Service]\nExecStartPost=/bin/sleep 0.1\n" > /etc/systemd/system/nginx.service.d/override.conf
 
 # Expose port 80
 EXPOSE 8080
