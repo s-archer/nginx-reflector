@@ -31,3 +31,16 @@ spec:
         - emptyDir:
             sizeLimit: 100Mi
           name: nginx-cache
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-reflector
+spec:
+  type: ClusterIP
+  selector:
+    app: nginx-reflector
+  ports:
+  - name: http
+    port: 8080
