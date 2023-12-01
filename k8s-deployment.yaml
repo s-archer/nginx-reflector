@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  replicas: 1 # tells deployment to run 2 pods matching the template
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx-reflector
+        image: ghcr.io/s-archer/nginx-reflector:main
+        ports:
+        - containerPort: 8080
+      volumeMounts:
+        - mountPath: /var/run
+          name: tmpfs-1
+        - mountPath: /var/cache/nginx
+          name: tmpfs-2
+  volumes:
+    - name: tmpfs-1
+      emptyDir: {}
+    - name: tmpfs-2
+      emptyDir: {}
