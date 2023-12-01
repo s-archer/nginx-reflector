@@ -1,29 +1,33 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx-deployment
+  name: nginx-reflector
 spec:
   selector:
     matchLabels:
-      app: nginx
-  replicas: 1 # tells deployment to run 2 pods matching the template
+      app: nginx-reflector
   template:
     metadata:
       labels:
-        app: nginx
+        app: nginx-reflector
     spec:
       containers:
-      - name: nginx-reflector
-        image: ghcr.io/s-archer/nginx-reflector:main
-        ports:
-        - containerPort: 8080
-        volumeMounts:
-          - mountPath: /var/run
-            name: run
-          - mountPath: /var/cache/nginx
-            name: cache
+        - image: ghcr.io/s-archer/nginx-reflector:main
+          imagePullPolicy: Always
+          name: nginx-reflector
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /var/run
+              name: nginx-run
+            - mountPath: /var/cache/nginx
+              name: nginx-cache
       volumes:
-        - name: run
-          emptyDir: {}
-        - name: cache
-          emptyDir: {}
+        - emptyDir:
+            sizeLimit: 10Mi
+          name: nginx-run
+        - emptyDir:
+            sizeLimit: 100Mi
+          name: nginx-cache
