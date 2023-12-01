@@ -17,13 +17,13 @@ spec:
         image: ghcr.io/s-archer/nginx-reflector:main
         ports:
         - containerPort: 8080
-      volumeMounts:
-        - mountPath: /var/run
-          name: tmpfs-1
-        - mountPath: /var/cache/nginx
-          name: tmpfs-2
-  volumes:
-    - name: tmpfs-1
-      emptyDir: {}
-    - name: tmpfs-2
-      emptyDir: {}
+        volumeMounts:
+          - mountPath: /var/run
+            name: run
+          - mountPath: /var/cache/nginx
+            name: cache
+      volumes:
+        - name: run
+          emptyDir: {}
+        - name: cache
+          emptyDir: {}
