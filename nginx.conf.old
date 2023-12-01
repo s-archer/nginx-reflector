@@ -1,0 +1,31 @@
+events {}
+
+# http {
+#     server {
+#         listen 8080;
+#         server_name reflect.archf5.com reflector.archf5.com;
+
+#         location /capture-headers {
+#             add_header Content-Type "text/plain";
+#             return 200 "Request Headers:\n\n$host$request_uri\n\n$http_*";
+#             proxy_buffering off;
+#             # These two should be the same or nginx will start writing 
+#             # large request bodies to temp files 
+#             client_body_buffer_size 10m; 
+#             client_max_body_size 10m;
+#         }
+#     }
+# }
+
+http {
+
+    js_import  /etc/nginx/conf.d/headers.js;     # Load JavaScript code from here
+    js_set     $access_headers headers.kvAccess; # Fill variable from JS function
+
+    server {
+        listen 8080;
+        root /usr/share/nginx/html;
+        # access_log /var/log/nginx/access.log kvpairs;
+        return 200 "Request Headers:\n\n$host$request_uri\n\n$$access_headers";
+    }
+}

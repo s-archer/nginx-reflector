@@ -4,6 +4,8 @@ FROM nginx
 # Copy the NGINX configuration file with the custom capture-headers location
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY headers.js /etc/nginx/conf.d/headers.js
+COPY http.js /etc/nginx/conf.d/http.js
+COPY http.js /etc/nginx/http.js
 
 # Create a directory for the site content
 WORKDIR /usr/share/nginx/html
