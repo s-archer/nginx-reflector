@@ -60,6 +60,7 @@ jobs:
       - name: pull kubeconfig from secret
         run: |
           echo "$VK8S_KUBECONFIG" > kubeconfig.yaml
+          cat kubeconfig.yaml
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
