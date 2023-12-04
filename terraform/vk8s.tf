@@ -1,4 +1,4 @@
-resource "kubernetes_deployment" "example" {
+resource "kubernetes_deployment" "nginx-reflector" {
   metadata {
     name = "nginx-reflector"
     namespace = "s-archer"
