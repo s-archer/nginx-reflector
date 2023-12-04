@@ -17,6 +17,7 @@ terraform {
 
 provider "kubernetes" {
   config_path    = "${path.module}/kubeconfig.yaml"
+  config_context = "arch-vk8s"
 }
 
 
