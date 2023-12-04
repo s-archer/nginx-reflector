@@ -59,10 +59,10 @@ jobs:
 
       - name: pull kubeconfig from secret
         run: |
-          echo "$VK8S_KUBECONFIG" > kubeconfig.yaml
+          echo "${{ secrets.VK8S_KUBECONFIG }}" > kubeconfig.yaml
 
       - name: cat kubeconfig from secret
-        run: echo "kubeconfig=$(cat kubeconfig.yaml)" >> $GITHUB_OUTPUT
+        run: cat kubeconfig.yaml
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
