@@ -44,11 +44,10 @@ function hello(r) {
     r.return(200, "Hello world!");
 }
 
-
 // since 0.7.0
 async function hash(r) {
     let hash = await crypto.subtle.digest('SHA-512', r.headersIn.host);
     r.setReturnValue(Buffer.from(hash).toString('hex'));
 }
 
-export default {foo, summary, baz, hello, fetch, hash};
+export default {foo, summary, baz, hello, hash};
