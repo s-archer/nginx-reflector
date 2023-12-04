@@ -44,13 +44,6 @@ function hello(r) {
     r.return(200, "Hello world!");
 }
 
-// since 0.7.0
-async function fetch(r) {
-    let results = await Promise.all([ngx.fetch('https://nginx.org/'),
-                                     ngx.fetch('https://nginx.org/en/')]);
-
-    r.return(200, JSON.stringify(results, undefined, 4));
-}
 
 // since 0.7.0
 async function hash(r) {
