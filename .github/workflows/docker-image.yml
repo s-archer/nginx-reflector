@@ -39,7 +39,39 @@ jobs:
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
 
-    # - name: Build and push Docker image
-    #   run: |
-    #     docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/${{ github.repository_owner }}/${{ github.repository_name }}:latest .
-    #     docker push ghcr.io/${{ github.repository_owner }}/${{ github.repository_name }}:latest
+  deploy:
+
+    name: "Deploy to XC vk8s"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./terraform
+
+    steps:
+      - name: Checkout Git Repo
+        uses: actions/checkout@v3
+        with:
+          ref: main        
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.2.4
+
+      - name: Terraform Init
+        id: init1
+        run: |
+          terraform init \
+          -backend-config="access_key=${{ secrets.AZURE_BACKEND_KEY }}" 
+      
+      - name: Terraform Validate
+        id: validate1
+        run: terraform validate 
+
+      - name: Terraform Apply
+        id: apply1
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve -no-color -input=false 
+        env:
+          VES_P12_PASSWORD: ${{ secrets.VES_P12_PASSWORD }}
+          # TF_LOG: debug 
