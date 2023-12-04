@@ -2,7 +2,7 @@ resource "volterra_api_credential" "vk8s" {
   name      = "api-cred-example"
   api_credential_type = "KUBE_CONFIG"
   virtual_k8s_namespace = var.xc_namespace
-  virtual_k8s_name = var.vk8s_name
+  virtual_k8s_name = var.xc_vk8s_name
 }
 
 resource "local_file" "rendered_kubeconfig" {
