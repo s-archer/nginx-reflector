@@ -1,19 +1,52 @@
-resource "volterra_api_credential" "vk8s" {
-  name      = "api-cred-example"
-  api_credential_type = "KUBE_CONFIG"
-  virtual_k8s_namespace = var.xc_namespace
-  virtual_k8s_name = var.xc_vk8s_name
-}
+resource "kubernetes_deployment" "example" {
+  metadata {
+    name = "nginx-reflector"
+    namespace = "s-archer"
+  }
 
-resource "local_file" "rendered_kubeconfig" {
-  content = base64decode(volterra_api_credential.vk8s.data)
-  filename = "${path.module}/kubeconfig.yaml"
-}
-
-resource "kubernetes_manifest" "vk8s-deployment" {
-  manifest = yamldecode(file("${path.module}/k8s-deployment.yaml"))
-}
-
-resource "kubernetes_manifest" "vk8s" {
-  manifest = yamldecode(file("${path.module}/k8s-svc.yaml"))
+  spec {
+    selector {
+      match_labels = {
+        app = "nginx-reflector"
+      }
+    }
+    template  {
+      metadata {
+        labels = {
+          app = "nginx-reflector"
+        }
+      }
+      spec {
+        container {
+          image = "ghcr.io/s-archer/nginx-reflector:main"
+          image_pull_policy = "Always"
+          name = "nginx-reflector"
+          port {
+            container_port = 8080
+            protocol = "TCP"
+          }
+          volume_mount {
+              mount_path = "/var/run"
+              name = "nginx-run"
+          }
+          volume_mount {
+            mount_path = "/var/cache/nginx"
+            name = "nginx-cache"
+          }
+        }
+        volume {
+          empty_dir {
+            size_limit = "10Mi"
+          }
+          name = "nginx-run"
+        }
+        volume {
+          empty_dir {
+            size_limit = "100Mi"
+          }
+          name = "nginx-cache"
+        }
+      }
+    }
+  }
 }
