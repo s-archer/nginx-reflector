@@ -10,7 +10,9 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build:
+
+  buildjob:
+
     runs-on: ubuntu-latest
 
     steps:
@@ -39,7 +41,9 @@ jobs:
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
 
-  deploy:
+  deployjob:
+
+    needs: buildjob
 
     name: "Deploy to XC vk8s"
     runs-on: ubuntu-latest
