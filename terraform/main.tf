@@ -9,7 +9,7 @@ terraform {
   backend "azurerm" {
     resource_group_name  = "arch-storage-rg"
     storage_account_name = "xcterraformgithubactions"
-    container_name       = "nginx-reflector"
+    container_name       = var.xc_deployment_name
     key                  = "terraform.tfstat"
   }
 }
@@ -17,7 +17,7 @@ terraform {
 
 provider "kubernetes" {
   config_path    = "${path.module}/kubeconfig.yaml"
-  config_context = "arch-vk8s"
+  config_context = var.xc_vk8s_name
 }
 
 

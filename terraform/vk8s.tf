@@ -1,26 +1,26 @@
 resource "kubernetes_deployment" "nginx-reflector" {
   metadata {
-    name = "nginx-reflector"
-    namespace = "s-archer"
+    name = var.xc_deployment_name
+    namespace = var.xc_namespace
   }
 
   spec {
     selector {
       match_labels = {
-        app = "nginx-reflector"
+        app = var.xc_deployment_name
       }
     }
     template  {
       metadata {
         labels = {
-          app = "nginx-reflector"
+          app = var.xc_deployment_name
         }
       }
       spec {
         container {
           image = "ghcr.io/s-archer/nginx-reflector:main"
           image_pull_policy = "Always"
-          name = "nginx-reflector"
+          name = var.xc_deployment_name
           port {
             container_port = 8080
             protocol = "TCP"

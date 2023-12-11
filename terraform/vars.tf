@@ -28,3 +28,9 @@ variable "xc_api_p12_file" {
   description = "Volterra protected vertificate file"
   default     = "./protected-se.p12"
 }
+
+variable "xc_deployment_name" {
+  type        = string
+  description = "Volterra container deployment name"
+  default     = "nginx-reflector"
+}
