@@ -9,7 +9,7 @@ terraform {
   backend "azurerm" {
     resource_group_name  = "arch-storage-rg"
     storage_account_name = "xcterraformgithubactions"
-    container_name       = var.xc_deployment_name
+    container_name       = "nginx-reflector"
     key                  = "terraform.tfstat"
   }
 }
