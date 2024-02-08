@@ -12,6 +12,12 @@ WORKDIR /usr/share/nginx/html
 # Create an index.html file (optional)
 COPY index.html /usr/share/nginx/html/index.html
 
+# Create a startup script so that I can register the 
+# NGINX container instance with NGINX One in XC...
+# AND execute the 'start NGINX command' at the same time.
+# This is because docker supports only a single CMD directive
+COPY startup.sh /docker-entrypoint.d/startup.sh 
+
 # Expose port 80
 EXPOSE 8080
 
