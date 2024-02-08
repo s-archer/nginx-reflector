@@ -20,6 +20,10 @@ COPY index.html /usr/share/nginx/html/index.html
 COPY startup.sh /docker-entrypoint.d/startup.sh 
 RUN chmod +x /docker-entrypoint.d/startup.sh
 
+# It seems that the NGINX Agent script needs sudo to run
+RUN apt-get update && \
+      apt-get -y install sudo
+
 # Expose port 80
 EXPOSE 8080
 
