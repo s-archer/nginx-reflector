@@ -16,7 +16,9 @@ COPY index.html /usr/share/nginx/html/index.html
 # NGINX container instance with NGINX One in XC...
 # AND execute the 'start NGINX command' at the same time.
 # This is because docker supports only a single CMD directive
+# NGINX runs all scripts in the /docker-entrypoint.d/ directory
 COPY startup.sh /docker-entrypoint.d/startup.sh 
+RUN chmod +x /docker-entrypoint.d/startup.sh
 
 # Expose port 80
 EXPOSE 8080
