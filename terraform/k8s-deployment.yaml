@@ -4,6 +4,8 @@ kind: Deployment
 metadata:
   name: nginx-reflector
   namespace: s-archer
+  annotations:
+    ves.io/workload-flavor : ves-io-medium
 spec:
   selector:
     matchLabels:

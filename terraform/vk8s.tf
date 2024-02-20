@@ -2,6 +2,9 @@ resource "kubernetes_deployment" "nginx-reflector" {
   metadata {
     name = var.xc_deployment_name
     namespace = var.xc_namespace
+    annotations = {
+      ves.io/workload-flavor = ves-io-medium
+    }
   }
 
   spec {
