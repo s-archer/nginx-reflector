@@ -5,7 +5,7 @@ metadata:
   name: nginx-reflector
   namespace: s-archer
   annotations:
-    ves.io/workload-flavor : ves-io-medium
+    ves.io/workload-flavor : arch-custom
 spec:
   selector:
     matchLabels:
