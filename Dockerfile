@@ -22,7 +22,7 @@ RUN chmod +x /docker-entrypoint.d/startup.sh
 
 # It seems that the NGINX Agent script needs sudo to run
 RUN apt-get update && \
-      apt-get -y install sudo dnsutils
+      apt-get -y install sudo dnsutils nettools
 
 # Expose port 80
 EXPOSE 8080
