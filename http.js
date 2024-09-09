@@ -28,20 +28,6 @@ function summary(r) {
 }
 
 
-// function redirect(r) {
-//     // Get the incoming Host header
-//     const hostname = r.headersIn["Host"];
-
-//     // Get the request URI (path and query parameters)
-//     const requestUri = r.uri;
-
-//     // Combine the hostname with the request URI
-//     const fullUrl = `http://${hostname}/redirected`;
-
-//     // Perform the redirect
-//     r.redirect(fullUrl);
-// }
-
 function redirect(r) {
     // Get the incoming Host header
     const hostname = r.headersIn["Host"];
@@ -50,7 +36,7 @@ function redirect(r) {
     r.headersOut['Location'] = `http://${hostname}/redirected`;
 
     // Return the 301 status code for a permanent redirect
-    r.return(301);
+    r.return(302);
 }
 
 
