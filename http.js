@@ -6,22 +6,22 @@ function foo(r) {
 function summary(r) {
     var a, s, h;
 
-    s = "JS summary\n\n";
+    s = "JS summary<br><br>";
 
-    s += "Method: " + r.method + "\n";
-    s += "HTTP version: " + r.httpVersion + "\n";
-    s += "Host: " + r.headersIn.host + "\n";
-    s += "Remote Address: " + r.remoteAddress + "\n";
-    s += "URI: " + r.uri + "\n";
+    s += "Method: " + r.method + "<br>";
+    s += "HTTP version: " + r.httpVersion + "<br>";
+    s += "Host: " + r.headersIn.host + "<br>";
+    s += "Remote Address: " + r.remoteAddress + "<br>";
+    s += "URI: " + r.uri + "<br>";
 
-    s += "Headers:\n";
+    s += "Headers:<br>";
     for (h in r.headersIn) {
-        s += "  header '" + h + "' is '" + r.headersIn[h] + "'\n";
+        s += "  header '" + h + "' is '" + r.headersIn[h] + "'<br>";
     }
 
-    s += "Args:\n";
+    s += "Args:<br>";
     for (a in r.args) {
-        s += "  arg '" + a + "' is '" + r.args[a] + "'\n";
+        s += "  arg '" + a + "' is '" + r.args[a] + "'<br>";
     }
 
     return s;
