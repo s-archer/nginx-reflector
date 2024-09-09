@@ -85,7 +85,7 @@ function generateHtml(title, bodyText) {
         </div>
         <div class="container">
             <h1>${title}</h1>
-            <p>${body}</p>
+            <p>${bodyText}</p>
         </div>
     </body>
     </html>
