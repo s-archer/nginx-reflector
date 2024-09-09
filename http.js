@@ -27,20 +27,8 @@ function summary(r) {
     return s;
 }
 
-function baz(r) {
-    r.status = 200;
-    r.headersOut.foo = 1234;
-    r.headersOut['Content-Type'] = "text/plain; charset=utf-8";
-    r.headersOut['Content-Length'] = 15;
-    r.sendHeader();
-    r.send("nginx");
-    r.send("java");
-    r.send("script");
 
-    r.finish();
-}
-
-function redirectToHostWithParams(r) {
+function redirect(r) {
     // Get the incoming Host header
     const hostname = r.headersIn["Host"];
 
@@ -54,19 +42,14 @@ function redirectToHostWithParams(r) {
     r.redirect(fullUrl);
 }
 
-
-// function hello(r) {
-//     r.return(200, "Hello world!");
-// }
-function hello(r) {
-    r.headersOut['Content-Type'] = 'text/html';
-    r.return(200, `
+function generateHtml(title, bodyText) {
+    return `
     <!DOCTYPE html>
     <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Hello World</title>
+        <title>${title}</title>
         <style>
             body {
                 font-family: Arial, sans-serif;
@@ -98,12 +81,34 @@ function hello(r) {
     </head>
     <body>
         <div class="container">
-            <h1>Hello World!</h1>
-            <p>Welcome to your awesome HTML page.</p>
+            <h1>${title}</h1>
+            <p>${bodyText}</p>
         </div>
     </body>
     </html>
-    `);
+    `;
+}
+
+function path_rule(r) {
+    let title, bodyText;
+
+    // Check the URI to determine the content
+    if (r.uri === "/hello") {
+        title = "Hello Page";
+        bodyText = "Welcome to the Hello Page!";
+    } else if (r.uri === "/redirected") {
+        title = "Redirected Page";
+        bodyText = "You have been redirected here.";
+    } else {
+        title = "Unknown Page";
+        bodyText = "This page is not recognized.";
+    }
+
+    // Set the correct Content-Type header
+    r.headersOut['Content-Type'] = 'text/html';
+
+    // Return the dynamically generated HTML
+    r.return(200, generateHtml(title, bodyText));
 }
 
 // since 0.7.0
@@ -112,4 +117,4 @@ async function hash(r) {
     r.setReturnValue(Buffer.from(hash).toString('hex'));
 }
 
-export default {foo, summary, baz, hello, hash};
+export default {summary, hello, hash, path_rule, generateHtml, redirect};
