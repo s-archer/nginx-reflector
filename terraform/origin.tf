@@ -11,7 +11,7 @@ resource "volterra_origin_pool" "nginx-reflector" {
 
     k8s_service {
       service_name   = format("nginx-reflector.%s", var.xc_namespace)
-      inside_network = true
+      vk8s_networks = true
 
       site_locator {
 
