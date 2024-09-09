@@ -40,8 +40,54 @@ function baz(r) {
     r.finish();
 }
 
+// function hello(r) {
+//     r.return(200, "Hello world!");
+// }
 function hello(r) {
-    r.return(200, "Hello world!");
+    r.return(200, `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Hello World</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f0f8ff;
+                margin: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+            }
+            .container {
+                text-align: center;
+                background-color: #fff;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }
+            h1 {
+                color: #333;
+                font-size: 3rem;
+                margin: 0;
+            }
+            p {
+                color: #666;
+                font-size: 1.2rem;
+                margin-top: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Hello World!</h1>
+            <p>Welcome to your awesome HTML page.</p>
+        </div>
+    </body>
+    </html>
+    `);
 }
 
 // since 0.7.0

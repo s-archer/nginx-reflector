@@ -4,7 +4,7 @@ resource "volterra_origin_pool" "nginx-reflector" {
   description            = "nginx-reflector"
   endpoint_selection     = "LOCAL_PREFERRED"
   loadbalancer_algorithm = "LB_OVERRIDE"
-  port                   = 80
+  port                   = 8080
   no_tls                 = true
 
   origin_servers {
