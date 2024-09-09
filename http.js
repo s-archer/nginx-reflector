@@ -102,7 +102,10 @@ function path_rule(r) {
     } else if (r.uri === "/redirected") {
         title = "Redirected Page";
         bodyText = "You have been redirected here.";
-    } else {
+    } else if (r.uri === "/summary") {
+        title = "Summary of Headers Received";
+        bodyText = summary(r);
+    }     else {
         title = "Unknown Page";
         bodyText = "This page is not recognized.";
     }
