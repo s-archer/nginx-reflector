@@ -28,4 +28,5 @@ RUN apt-get update && \
 EXPOSE 8080
 
 # Start NGINX
+
 CMD ["nginx", "-g", "daemon off;"]
