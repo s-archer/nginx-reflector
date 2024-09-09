@@ -33,7 +33,7 @@ function redirect(r) {
     const hostname = r.headersIn["Host"];
 
     // Set the Location header to the new URL
-    r.headersOut['Location'] = `https://${hostname}/redirected`;
+    r.headersOut['Location'] = `https://reflect.archf5.com/redirected`;
 
     // Return the 301 status code for a permanent redirect
     r.return(302);
