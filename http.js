@@ -117,4 +117,4 @@ async function hash(r) {
     r.setReturnValue(Buffer.from(hash).toString('hex'));
 }
 
-export default {summary, hello, hash, path_rule, generateHtml, redirect};
+export default {summary, hash, path_rule, generateHtml, redirect};
