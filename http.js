@@ -28,19 +28,31 @@ function summary(r) {
 }
 
 
+// function redirect(r) {
+//     // Get the incoming Host header
+//     const hostname = r.headersIn["Host"];
+
+//     // Get the request URI (path and query parameters)
+//     const requestUri = r.uri;
+
+//     // Combine the hostname with the request URI
+//     const fullUrl = `http://${hostname}/redirected`;
+
+//     // Perform the redirect
+//     r.redirect(fullUrl);
+// }
+
 function redirect(r) {
     // Get the incoming Host header
     const hostname = r.headersIn["Host"];
 
-    // Get the request URI (path and query parameters)
-    const requestUri = r.uri;
+    // Set the Location header to the new URL
+    r.headersOut['Location'] = `http://${hostname}/redirected`;
 
-    // Combine the hostname with the request URI
-    const fullUrl = `http://${hostname}/redirected`;
-
-    // Perform the redirect
-    r.redirect(fullUrl);
+    // Return the 301 status code for a permanent redirect
+    r.return(301);
 }
+
 
 function generateHtml(title, bodyText) {
     return `
