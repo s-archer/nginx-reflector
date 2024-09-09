@@ -40,10 +40,26 @@ function baz(r) {
     r.finish();
 }
 
+function redirectToHostWithParams(r) {
+    // Get the incoming Host header
+    const hostname = r.headersIn["Host"];
+
+    // Get the request URI (path and query parameters)
+    const requestUri = r.uri;
+
+    // Combine the hostname with the request URI
+    const fullUrl = `http://${hostname}/redirected`;
+
+    // Perform the redirect
+    r.redirect(fullUrl);
+}
+
+
 // function hello(r) {
 //     r.return(200, "Hello world!");
 // }
 function hello(r) {
+    r.headersOut['Content-Type'] = 'text/html';
     r.return(200, `
     <!DOCTYPE html>
     <html lang="en">
