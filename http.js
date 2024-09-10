@@ -123,8 +123,10 @@ function path_rule(r) {
     if (r.uri === "/response-headers") {
         r.headersOut['Content-Type'] = 'text/html';
         r.headersOut['Strict-Transport-Security'] = 'max-age=20000000';
-        r.headersOut['Set-Cookie'] = 'weak-cookie=weakphrase';
-        r.headersOut['Set-Cookie'] = 'other-cookie=value-xyz';
+        r.headersOut['Set-Cookie'] = [
+            'weak-cookie=weakphrase; Path=/',
+            'other-cookie=value-xyz'
+        ];
         title = "Hello Page";
         bodyText = "Welcome to the Response Headers Page! Look at developer tools to see the following headers:</p>";
 
