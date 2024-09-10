@@ -38,6 +38,14 @@ resource "volterra_http_loadbalancer" "nginx-reflector" {
       }
     }
   }
+  protected_cookies {
+    name = "weak-cookie"
+    samesite_strict = true
+    add_secure = true
+    add_httponly = true
+    disable_tampering_protection = true
+  }
+  
   more_option {
     response_headers_to_add {
       name = "Strict-Transport-Security"
