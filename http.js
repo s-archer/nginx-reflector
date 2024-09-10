@@ -55,24 +55,30 @@ function generateHtml(title, bodyText) {
             padding: 0;
             display: flex;
             justify-content: center; /* Center horizontally */
-            align-items: center; /* Center vertically */
-            height: 100vh; /* Full viewport height */
-            text-align: left;
+            align-items: flex-start; /* Align container to the top */
+            min-height: 100vh; /* Ensure body takes full viewport height */
+            overflow-y: auto; /* Allow vertical scrolling if content is too tall */
+            text-align: center;
         }
         .wrapper {
             display: flex;
             flex-direction: column; /* Stack items vertically */
             align-items: center; /* Center items horizontally */
+            max-width: 100%; /* Ensure container does not overflow horizontally */
+            padding: 20px; /* Optional padding for spacing */
         }
         .home-icon {
-            margin-bottom: 20px; /* Add space below home icon */
+            margin-bottom: 20px;
         }
         .home-icon img {
             width: 32px;
             height: 32px;
         }
         .container {
-            text-align: center; /* Ensure text is centered in the container */
+            text-align: center;
+        }
+        .container p {
+            text-align: left; /* Align body text to the left */
         }
     </style>
 </head>
