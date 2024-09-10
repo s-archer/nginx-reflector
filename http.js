@@ -79,8 +79,8 @@ function generateHtml(title, bodyText) {
 <body>
     <div class="wrapper">
         <div class="home-icon">
-            <a href="https://mydomain.com/">
-                <img src="/images/home-icon.png" alt="Home">
+            <a href="https://reflect.archf5.com">
+                <img src="/home.png" alt="Home">
             </a>
         </div>
         <div class="container">
