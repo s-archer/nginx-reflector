@@ -42,53 +42,54 @@ function redirect(r) {
 
 function generateHtml(title, bodyText) {
     return `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>${title}</title>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                background-color: #f0f8ff;
-                margin: 0;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 100vh;
-            }
-            .container {
-                text-align: center;
-                background-color: #fff;
-                padding: 20px;
-                border-radius: 10px;
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            }
-            h1 {
-                color: #333;
-                font-size: 3rem;
-                margin: 0;
-            }
-            p {
-                color: #666;
-                font-size: 1.2rem;
-                margin-top: 10px;
-            }
-        </style>
-    </head>
-    <body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center; /* Center horizontally */
+            align-items: center; /* Center vertically */
+            height: 100vh; /* Full viewport height */
+            text-align: left;
+        }
+        .wrapper {
+            display: flex;
+            flex-direction: column; /* Stack items vertically */
+            align-items: center; /* Center items horizontally */
+        }
+        .home-icon {
+            margin-bottom: 20px; /* Add space below home icon */
+        }
+        .home-icon img {
+            width: 32px;
+            height: 32px;
+        }
+        .container {
+            text-align: center; /* Ensure text is centered in the container */
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
         <div class="home-icon">
-            <a href="https://reflect.archf5.com/">
-                <img src="/home.png" alt="Home">
+            <a href="https://mydomain.com/">
+                <img src="/images/home-icon.png" alt="Home">
             </a>
         </div>
         <div class="container">
             <h1>${title}</h1>
             <p>${bodyText}</p>
         </div>
-    </body>
-    </html>
+    </div>
+</body>
+</html>
     `;
 }
 
