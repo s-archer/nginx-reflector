@@ -112,13 +112,33 @@ function path_rule(r) {
     } else if (r.uri === "/summary") {
         title = "Summary of Headers Received";
         bodyText = summary(r);
-    }     else {
+    } else {
         title = "Unknown Page";
         bodyText = "This page is not recognized.";
     }
 
     // Set the correct Content-Type header
     r.headersOut['Content-Type'] = 'text/html';
+
+    if (r.uri === "/response-headers") {
+        r.headersOut['Content-Type'] = 'text/html';
+        r.headersOut['Strict-Transport-Security'] = 'max-age=20000000';
+        title = "Hello Page";
+        bodyText = "Welcome to the Reponse Headers Page!  Look at develor tools to see the headers</p>";
+    }
+
+    if (r.uri === "/response-headers") {
+        r.headersOut['Content-Type'] = 'text/html';
+        r.headersOut['Strict-Transport-Security'] = 'max-age=20000000';
+        title = "Hello Page";
+        bodyText = "Welcome to the Response Headers Page! Look at developer tools to see the following headers:</p>";
+
+        // Iterate over r.headersOut and append them to the bodyText
+        bodyText += "<h2>Response Headers:</h2>";
+        for (const header in r.headersOut) {
+            bodyText += `<p>${header}: ${r.headersOut[header]}</p>`;
+        }
+    }
 
     // Return the dynamically generated HTML
     r.return(200, generateHtml(title, bodyText));
