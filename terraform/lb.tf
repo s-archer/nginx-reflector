@@ -30,6 +30,7 @@ resource "volterra_http_loadbalancer" "nginx-reflector" {
       name      = volterra_origin_pool.nginx-reflector.name
     }
   }
+
   routes {
     custom_route_object {
       route_ref {
@@ -38,6 +39,7 @@ resource "volterra_http_loadbalancer" "nginx-reflector" {
       }
     }
   }
+
   protected_cookies {
     name = "weak-cookie"
     samesite_strict = true
@@ -45,7 +47,16 @@ resource "volterra_http_loadbalancer" "nginx-reflector" {
     add_httponly = true
     disable_tampering_protection = true
   }
-  
+
+  cookie_stickiness {
+    name = "sticky"
+    ttl = 60
+    path = "/"
+    ignore_httponly = true
+    ignore_samesite = true
+    ignore_secure   = true
+  }
+
   more_option {
     response_headers_to_add {
       name = "Strict-Transport-Security"

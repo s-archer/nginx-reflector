@@ -124,7 +124,7 @@ function path_rule(r) {
         r.headersOut['Content-Type'] = 'text/html';
         r.headersOut['Strict-Transport-Security'] = 'max-age=20000000';
         r.headersOut['Set-Cookie'] = [
-            'weak-cookie=weakphrase; Path=/',
+            'weak-cookie=weakphrase; Path=/response-headers',
             'other-cookie=value-xyz'
         ];
         title = "Hello Page";
