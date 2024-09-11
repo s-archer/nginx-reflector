@@ -58,11 +58,25 @@ resource "volterra_http_loadbalancer" "nginx-reflector" {
   }
 
   more_option {
+
+    request_headers_to_add {
+      name = "arch-http-protocol"
+      value = "$[scheme]"
+      append = false
+    }
+
+    request_headers_to_add {
+      name = "arch-tls-version"
+      value = "$[protocol]"
+      append = false
+    }
+
     response_headers_to_add {
       name = "Strict-Transport-Security"
       value = "9999999"
       append = false
     }
+    
     max_request_header_size = "60"
     idle_timeout = "30000"
     disable_default_error_pages = false
