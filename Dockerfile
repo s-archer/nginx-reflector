@@ -12,6 +12,7 @@ WORKDIR /usr/share/nginx/html
 # Create an index.html file (optional)
 COPY index.html /usr/share/nginx/html/index.html
 COPY ./images/home.png /usr/share/nginx/html/home.png
+COPY ./images/reflection.jpg /usr/share/nginx/html/reflection.jpg
 
 # Create a startup script so that I can register the 
 # NGINX container instance with NGINX One in XC...
