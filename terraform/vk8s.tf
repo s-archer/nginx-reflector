@@ -8,7 +8,7 @@ resource "kubernetes_deployment" "nginx-reflector" {
   }
 
   spec {
-    replicas = 2
+    replicas = 1
     selector {
       match_labels = {
         app = var.xc_deployment_name
