@@ -66,7 +66,7 @@ resource "kubernetes_service" "nginx-reflector" {
     }
     session_affinity = "ClientIP"
     port {
-      port        = 80
+      port        = 8080
       target_port = 8080
     }
 
