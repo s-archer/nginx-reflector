@@ -54,3 +54,22 @@ resource "kubernetes_deployment" "nginx-reflector" {
     }
   }
 }
+
+resource "kubernetes_service" "nginx-reflector" {
+  metadata {
+    name = "nginx-reflector"
+    namespace = var.xc_namespace
+  }
+  spec {
+    selector = {
+      app = var.xc_deployment_name
+    }
+    session_affinity = "ClientIP"
+    port {
+      port        = 80
+      target_port = 8080
+    }
+
+    type = "ClusterIP"
+  }
+}

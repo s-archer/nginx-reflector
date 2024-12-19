@@ -1,36 +1,36 @@
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: nginx-reflector
-  namespace: s-archer
-  annotations:
-    ves.io/workload-flavor : arch-custom
-spec:
-  selector:
-    matchLabels:
-      app: nginx-reflector
-  template:
-    metadata:
-      labels:
-        app: nginx-reflector
-    spec:
-      containers:
-        - image: ghcr.io/s-archer/nginx-reflector:main
-          imagePullPolicy: Always
-          name: nginx-reflector
-          ports:
-            - containerPort: 8080
-              protocol: TCP
-          volumeMounts:
-            - mountPath: /var/run
-              name: nginx-run
-            - mountPath: /var/cache/nginx
-              name: nginx-cache
-      volumes:
-        - emptyDir:
-            sizeLimit: 10Mi
-          name: nginx-run
-        - emptyDir:
-            sizeLimit: 100Mi
-          name: nginx-cache
+# ---
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: nginx-reflector
+#   namespace: s-archer
+#   annotations:
+#     ves.io/workload-flavor : arch-custom
+# spec:
+#   selector:
+#     matchLabels:
+#       app: nginx-reflector
+#   template:
+#     metadata:
+#       labels:
+#         app: nginx-reflector
+#     spec:
+#       containers:
+#         - image: ghcr.io/s-archer/nginx-reflector:main
+#           imagePullPolicy: Always
+#           name: nginx-reflector
+#           ports:
+#             - containerPort: 8080
+#               protocol: TCP
+#           volumeMounts:
+#             - mountPath: /var/run
+#               name: nginx-run
+#             - mountPath: /var/cache/nginx
+#               name: nginx-cache
+#       volumes:
+#         - emptyDir:
+#             sizeLimit: 10Mi
+#           name: nginx-run
+#         - emptyDir:
+#             sizeLimit: 100Mi
+#           name: nginx-cache
