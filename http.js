@@ -47,7 +47,7 @@ function generateScripts() {
   Insert this inside <head>.
 */
 (async function showQuotableAlert(){
-  const url = "https://zenquotes.io/api/quotes/random";
+  const url = "https://type.fit/api/quotes";
   try {
     const res = await fetch(url, { cache: "no-store" });
     if(!res.ok) throw new Error("Network response not OK");
