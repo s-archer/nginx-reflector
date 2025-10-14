@@ -1,4 +1,4 @@
-// r is the request provided by nginx. 
+// r is the request provided by nginx
 
 function foo(r) {
     r.log("hello from foo() handler");
