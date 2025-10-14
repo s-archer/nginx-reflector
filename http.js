@@ -54,7 +54,7 @@ function generateScripts() {
     const data = await res.json();
     // keep the alert reasonably sized
     const text = "Unknown";
-    alert("💡 Quote of the moment\n\n" + text);
+    alert("Quote of the moment" + text);
   } catch (err) {
     // graceful fallback
     console.warn("Quotable fetch failed:", err);
