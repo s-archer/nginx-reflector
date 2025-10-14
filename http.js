@@ -1,3 +1,5 @@
+// r is the request provided by nginx. 
+
 function foo(r) {
     r.log("hello from foo() handler");
     return "foo";
@@ -27,7 +29,6 @@ function summary(r) {
     return s;
 }
 
-
 function redirect(r) {
     // Get the incoming Host header
     const hostname = r.headersIn["Host"];
@@ -39,12 +40,39 @@ function redirect(r) {
     r.return(302);
 }
 
+function generateScripts() {
+    return `<script>
+/*
+  Fetch a random quote from Quotable and show it in a simple alert.
+  Insert this inside <head>.
+*/
+(async function showQuotableAlert(){
+  const url = "https://api.quotable.io/random";
+  try {
+    const res = await fetch(url, { cache: "no-store" });
+    if(!res.ok) throw new Error("Network response not OK");
+    const data = await res.json();
+    // keep the alert reasonably sized
+    const text = "Unknown";
+    alert("💡 Quote of the moment\n\n" + text);
+  } catch (err) {
+    // graceful fallback
+    console.warn("Quotable fetch failed:", err);
+    // don't spam user with alerts if fetch fails repeatedly
+    // fallback short message:
+    // (No alert here to avoid annoying repeated popups; uncomment if you want)
+    // alert("💡 Couldn't fetch a quote right now.");
+  }
+})();
+</script>`
+}
 
-function generateHtml(title, bodyText) {
+function generateHtml(title, bodyText, scripts) {
     return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    ${scripts}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${title}</title>
@@ -102,27 +130,17 @@ function generateHtml(title, bodyText) {
 }
 
 function path_rule(r) {
-    let title, bodyText;
+    let title, bodyText, scripts;
 
     // Check the URI to determine the content
+    scripts = "";
     if (r.uri === "/hello") {
         title = "Hello Page";
         bodyText = "Welcome to the Hello Page!";
     } else if (r.uri === "/redirected") {
         title = "Redirected Page";
         bodyText = "You have been redirected here.";
-    } else if (r.uri === "/summary") {
-        title = "Summary of Headers Received";
-        bodyText = summary(r);
-    } else {
-        title = "Unknown Page";
-        bodyText = "This page is not recognized.";
-    }
-
-    // Set the correct Content-Type header
-    r.headersOut['Content-Type'] = 'text/html';
-
-    if (r.uri === "/response-headers") {
+    } else if (r.uri === "/response-headers") {
         r.headersOut['Content-Type'] = 'text/html';
         r.headersOut['Strict-Transport-Security'] = 'max-age=20000000';
         r.headersOut['Set-Cookie'] = [
@@ -137,10 +155,23 @@ function path_rule(r) {
         for (const header in r.headersOut) {
             bodyText += `<p>${header}: ${r.headersOut[header]}</p>`;
         }
+    } else if (r.uri === "/summary") {
+        title = "Summary of Headers Received";
+        bodyText = summary(r);
+    } else if (r.uri === "/scripts") {
+        title = "Execute some scripts for CSD";
+        bodyText = "Execute some scripts for CSD";
+        scripts = generateScripts();
+    } else {
+        title = "Unknown Page";
+        bodyText = "This page is not recognized.";
     }
 
+    // Set the correct Content-Type header
+    r.headersOut['Content-Type'] = 'text/html';
+
     // Return the dynamically generated HTML
-    r.return(200, generateHtml(title, bodyText));
+    r.return(200, generateHtml(title, bodyText, scripts));
 }
 
 // since 0.7.0
