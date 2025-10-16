@@ -9,6 +9,7 @@ http {
     js_set $path_rule   http.path_rule;
     js_set $summary     http.summary;
 
+
     resolver 10.0.0.1;
 
     server {
@@ -51,46 +52,6 @@ http {
         }
 
         location = /summary {
-            return 200 $path_rule;
-        }
-
-        location = /index-iframe.html  {
-            return 200 $path_rule;
-        }
-        
-        location = /framebust.html  {
-            return 200 $path_rule;
-        }
-        
-        location = /iframe-http.html  {
-            return 200 $path_rule;
-        }
-        
-        location = /iframe-https.html  {
-            return 200 $path_rule;
-        }
-        
-        location = /iframe-sandbox-https.html  {
-            return 200 $path_rule;
-        }
-        
-        location = /xframes/xframe-https.html  {
-            return 200 $path_rule;
-        }
-        
-        location = /framebust.js  {
-            return 200 $path_rule;
-        }
-        
-        location = /offdomain.js  {
-            return 200 $path_rule;
-        }
-        
-        location = /ondomain.js  {
-            return 200 $path_rule;
-        }
-        
-        location = /sandbox-check.js  {
             return 200 $path_rule;
         }
     }
