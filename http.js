@@ -3,10 +3,6 @@
 //
 // r is the request object provided by NGINX.
 
-function foo(r) {
-    r.log("hello from foo() handler");
-    return "foo";
-}
 
 function summary(r) {
     var a, s, h;
@@ -31,7 +27,6 @@ function summary(r) {
 }
 
 function redirect(r) {
-    const hostname = r.headersIn["Host"];
     r.headersOut['Location'] = `https://reflect.archf5.com/redirected`;
     r.return(302);
 }
@@ -283,9 +278,7 @@ if (self === top) {
 
     // Image endpoints (placeholders)
     const imgPaths = [
-        "/local-http.jpg","/local-https.jpg","/sandbox-check.jpg","/script-inline.jpg",
-        "/script-ondomain.jpg","/script-offdomain.jpg","/subdomain-http.jpg",
-        "/webbug-http.jpg","/webbug-https.jpg","/xframes/script-inline.jpg"
+        "/local-http.jpg","/local-https.jpg","/sandbox-check.jpg","/script-inline.jpg","/script-ondomain.jpg","/script-offdomain.jpg","/subdomain-http.jpg","/webbug-http.jpg","/webbug-https.jpg","/xframes/script-inline.jpg"
     ];
     if (imgPaths.includes(path)) {
         sendImage(r);
@@ -302,4 +295,4 @@ async function hash(r) {
     r.setReturnValue(Buffer.from(hash).toString('hex'));
 }
 
-export default {summary, hash, path_rule, generateHtml, redirect};
+export default {summary, hash, path_rule, generateHtml, redirect, iframe_rule};
