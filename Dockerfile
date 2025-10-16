@@ -10,7 +10,8 @@ COPY http.js /etc/nginx/http.js
 WORKDIR /usr/share/nginx/html
 
 # Create an index.html file (optional)
-COPY index.html /usr/share/nginx/html/index.html
+# COPY index.html /usr/share/nginx/html/index.html
+COPY ./html/* /usr/share/nginx/html/
 COPY ./images/home.png /usr/share/nginx/html/home.png
 COPY ./images/reflection.jpg /usr/share/nginx/html/reflection.jpg
 
