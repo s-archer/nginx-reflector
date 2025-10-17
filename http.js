@@ -280,7 +280,7 @@ document.write('<img src="https://test-only.reflect.archf5.com/script-inline.jpg
     if (path === "/ondomain.js") {
         setCommonHeaders(r);
         r.headersOut['Content-Type'] = 'application/javascript';
-        r.return(200, `document.write('<img src="https://test-only-webbug.reflect.f5xc.co.uk/script-ondomain.jpg" width="120" height="120"></img>')`);
+        r.return(200, `document.write('<img src="https://test-only-webbug.reflect.archf5.com/script-ondomain.jpg" width="120" height="120"></img>')`);
         return;
     }
 
