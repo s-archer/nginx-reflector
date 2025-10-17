@@ -142,10 +142,10 @@ function path_rule(r) {
     } else if (r.uri === "/summary") {
         title = "Summary of Headers Received";
         bodyText = summary(r);
-    } else if (r.uri === "/scripts") {
-        title = "Execute some scripts for CSD";
-        bodyText = "Execute some scripts for CSD";
-        scripts = generateScripts();
+    // } else if (r.uri === "/scripts") {
+    //     title = "Execute some scripts for CSD";
+    //     bodyText = "Execute some scripts for CSD";
+    //     scripts = generateScripts();
     } else {
         return iframe_rule(r); // Delegate to iRule-style handler if matched
     }
@@ -165,11 +165,11 @@ function setCommonHeaders(r) {
 // Small transparent pixel for placeholders
 const base64Image = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/P+iXyAAAAABJRU5ErkJggg==";
 
-function sendImage(r) {
-    setCommonHeaders(r);
-    r.headersOut['Content-Type'] = 'image/png';
-    r.return(200, Buffer.from(base64Image, 'base64'));
-}
+// function sendImage(r) {
+//     setCommonHeaders(r);
+//     r.headersOut['Content-Type'] = 'image/png';
+//     r.return(200, Buffer.from(base64Image, 'base64'));
+// }
 
 function iframe_rule(r) {
     const path = r.uri;
@@ -280,10 +280,10 @@ if (self === top) {
     const imgPaths = [
         "/local-http.jpg","/local-https.jpg","/sandbox-check.jpg","/script-inline.jpg","/script-ondomain.jpg","/script-offdomain.jpg","/subdomain-http.jpg","/webbug-http.jpg","/webbug-https.jpg","/xframes/script-inline.jpg"
     ];
-    if (imgPaths.includes(path)) {
-        sendImage(r);
-        return;
-    }
+    // if (imgPaths.includes(path)) {
+    //     sendImage(r);
+    //     return;
+    // }
 
     // Default
     r.return(404, "Not found");
