@@ -248,7 +248,7 @@ document.write('<img src="https://test-only.reflect.archf5.com/script-inline.jpg
 
     if (path === "/iframe-sandbox-https.html") {
         setCommonHeaders(r);
-        r.return(200, `<html><body style="background-color:#15DEB3"><h1>Fully sandboxed HTTPS iframe.</h1><script src="https://test-only.reflect.archf5.com/sandbox-check.js"></script></body></html>`);
+        r.return(200, `<html><body style="background-color:#15DEB3"><h1>Fully sandboxed HTTPS iframe.</h1><h1>Script Blocked.</h1><script src="https://test-only.reflect.archf5.com/sandbox-check.js"></script></body></html>`);
         return;
     }
 
@@ -263,10 +263,10 @@ document.write('<img src="https://test-only.reflect.archf5.com/script-inline.jpg
         setCommonHeaders(r);
         r.headersOut['Content-Type'] = 'application/javascript';
         r.return(200, `
-            if (self === top) {
-            var antiClickjack = document.getElementById("antiClickjack");
-            if (antiClickjack) antiClickjack.parentNode.removeChild(antiClickjack);
-            }`);
+if (self === top) {
+var antiClickjack = document.getElementById("antiClickjack");
+if (antiClickjack) antiClickjack.parentNode.removeChild(antiClickjack);
+}`);
         return;
     }
 
