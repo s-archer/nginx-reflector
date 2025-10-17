@@ -184,23 +184,23 @@ function iframe_rule(r) {
 <body bgcolor="Green">
 <h1> iFrame </h1>
 <div style="display: inline-block; margin: 10px; text-align: left;">
-    <div style="margin-bottom: 4px;">iframe – http – external domain</div>
+    <div style="margin-bottom: 4px;">Cross-domain HTTP iframe.</div>
     <iframe src="http://test-only-iframe.reflect.demof5.net/iframe-http.html" width="300" height="250"></iframe>
 </div>
 <div style="display: inline-block; margin: 10px; text-align: left;">
-    <div style="margin-bottom: 4px;">iframe – https – external domain</div>
+    <div style="margin-bottom: 4px;">Cross-domain HTTPS iframe.</div>
     <iframe src="https://test-only-iframe.reflect.demof5.net/iframe-https.html" width="300" height="250"></iframe>
 </div>
 <div style="display: inline-block; margin: 10px; text-align: left;">
-    <div style="margin-bottom: 4px;">iframe – https - sandbox external domain</div>
+    <div style="margin-bottom: 4px;">Fully sandboxed HTTPS iframe.</div>
     <iframe sandbox src="https://test-only-iframe.reflect.demof5.net/iframe-sandbox-https.html" width="300" height="250"></iframe>
 </div>
 <div style="display: inline-block; margin: 10px; text-align: left;">
-    <div style="margin-bottom: 4px;">iframe – https - xframes</div>
+    <div style="margin-bottom: 4px;">Cross-domain HTTPS iframe. X-Frame-Options not supported if visible.</div>
     <iframe src="https://test-only-iframe.reflect.demof5.net/xframes/xframe-https.html" width="300" height="250"></iframe>
 </div>
 <div style="display: inline-block; margin: 10px; text-align: left;">
-    <div style="margin-bottom: 4px;">iframe – https - framebust test</div>
+    <div style="margin-bottom: 4px;">framebust test</div>
     <iframe src="https://test-only-iframe.reflect.demof5.net/framebust.html" width="300" height="250"></iframe>
 </div>
 
@@ -263,10 +263,10 @@ document.write('<img src="https://test-only.reflect.archf5.com/script-inline.jpg
         setCommonHeaders(r);
         r.headersOut['Content-Type'] = 'application/javascript';
         r.return(200, `
-if (self === top) {
-  var antiClickjack = document.getElementById("antiClickjack");
-  if (antiClickjack) antiClickjack.parentNode.removeChild(antiClickjack);
-}`);
+            if (self === top) {
+            var antiClickjack = document.getElementById("antiClickjack");
+            if (antiClickjack) antiClickjack.parentNode.removeChild(antiClickjack);
+            }`);
         return;
     }
 
