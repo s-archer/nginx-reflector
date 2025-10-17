@@ -228,7 +228,7 @@ function iframe_rule(r) {
             <html><head><style id="antiClickjack">body{display:none !important;}</style></head>
             <body style="background-color:#25DEB3">
             <h1>Framebuster failed</h1>
-            <script src="https://test-only.reflect.archf5.com/framebust.js"></script>
+            <script src="https://test-only.reflect.demof5.net/framebust.js"></script>
             </body></html>`;
         r.return(200, html);
         return;
