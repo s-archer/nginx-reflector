@@ -183,11 +183,26 @@ function iframe_rule(r) {
 <head><meta charset="UTF-8"><title>Test Page</title></head>
 <body bgcolor="Green">
 <h1> iFrame </h1>
-<iframe src="http://test-only-iframe.reflect.demof5.net/iframe-http.html" width="300" height="250"></iframe>
-<iframe src="https://test-only-iframe.reflect.demof5.net/iframe-https.html" width="300" height="250"></iframe>
-<iframe sandbox src="https://test-only-iframe.reflect.demof5.net/iframe-sandbox-https.html" width="300" height="250"></iframe>
-<iframe src="https://test-only-iframe.reflect.demof5.net/xframes/xframe-https.html" width="300" height="250"></iframe>
-<iframe src="https://test-only-iframe.reflect.demof5.net/framebust.html" width="300" height="250"></iframe>
+<div style="display: inline-block; margin: 10px; text-align: left;">
+    <div style="margin-bottom: 4px;">iframe – http – external domain</div>
+    <iframe src="http://test-only-iframe.reflect.demof5.net/iframe-http.html" width="300" height="250"></iframe>
+</div>
+<div style="display: inline-block; margin: 10px; text-align: left;">
+    <div style="margin-bottom: 4px;">iframe – https – external domain</div>
+    <iframe src="https://test-only-iframe.reflect.demof5.net/iframe-https.html" width="300" height="250"></iframe>
+</div>
+<div style="display: inline-block; margin: 10px; text-align: left;">
+    <div style="margin-bottom: 4px;">iframe – https - sandbox external domain</div>
+    <iframe sandbox src="https://test-only-iframe.reflect.demof5.net/iframe-sandbox-https.html" width="300" height="250"></iframe>
+</div>
+<div style="display: inline-block; margin: 10px; text-align: left;">
+    <div style="margin-bottom: 4px;">iframe – https - xframes</div>
+    <iframe src="https://test-only-iframe.reflect.demof5.net/xframes/xframe-https.html" width="300" height="250"></iframe>
+</div>
+<div style="display: inline-block; margin: 10px; text-align: left;">
+    <div style="margin-bottom: 4px;">iframe – https - framebust test</div>
+    <iframe src="https://test-only-iframe.reflect.demof5.net/framebust.html" width="300" height="250"></iframe>
+</div>
 
 <h1> Images </h1>
 <img src="http://test-only-webbug.reflect.archf5.com/webbug-http.jpg" width="120" height="120">
