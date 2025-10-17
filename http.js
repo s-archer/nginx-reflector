@@ -163,7 +163,7 @@ function setCommonHeaders(r) {
 }
 
 // Small transparent pixel for placeholders
-const base64Image = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/P+iXyAAAAABJRU5ErkJggg==";
+// const base64Image = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/P+iXyAAAAABJRU5ErkJggg==";
 
 // function sendImage(r) {
 //     setCommonHeaders(r);
@@ -179,44 +179,44 @@ function iframe_rule(r) {
         setCommonHeaders(r);
         r.headersOut['Content-Type'] = 'text/html';
         const html = `
-<html>
-<head><meta charset="UTF-8"><title>Test Page</title></head>
-<body bgcolor="Green">
-<h1> iFrame </h1>
-<div style="display: inline-block; margin: 10px; text-align: left;">
-    <div style="margin-bottom: 4px;">Cross-domain HTTP iframe.</div>
-    <iframe src="http://test-only-iframe.reflect.demof5.net/iframe-http.html" width="300" height="250"></iframe>
-</div>
-<div style="display: inline-block; margin: 10px; text-align: left;">
-    <div style="margin-bottom: 4px;">Cross-domain HTTPS iframe.</div>
-    <iframe src="https://test-only-iframe.reflect.demof5.net/iframe-https.html" width="300" height="250"></iframe>
-</div>
-<div style="display: inline-block; margin: 10px; text-align: left;">
-    <div style="margin-bottom: 4px;">Fully sandboxed HTTPS iframe.</div>
-    <iframe sandbox src="https://test-only-iframe.reflect.demof5.net/iframe-sandbox-https.html" width="300" height="250"></iframe>
-</div>
-<div style="display: inline-block; margin: 10px; text-align: left;">
-    <div style="margin-bottom: 4px;">Cross-domain HTTPS iframe. X-Frame-Options not supported if visible.</div>
-    <iframe src="https://test-only-iframe.reflect.demof5.net/xframes/xframe-https.html" width="300" height="250"></iframe>
-</div>
-<div style="display: inline-block; margin: 10px; text-align: left;">
-    <div style="margin-bottom: 4px;">framebust test</div>
-    <iframe src="https://test-only-iframe.reflect.demof5.net/framebust.html" width="300" height="250"></iframe>
-</div>
+            <html>
+            <head><meta charset="UTF-8"><title>Test Page</title></head>
+            <body bgcolor="Green">
+            <h1> iFrame </h1>
+            <div style="display: inline-block; margin: 10px; text-align: left;">
+                <div style="margin-bottom: 4px;">Cross-domain HTTP iframe.</div>
+                <iframe src="http://test-only-iframe.reflect.demof5.net/iframe-http.html" width="300" height="250"></iframe>
+            </div>
+            <div style="display: inline-block; margin: 10px; text-align: left;">
+                <div style="margin-bottom: 4px;">Cross-domain HTTPS iframe.</div>
+                <iframe src="https://test-only-iframe.reflect.demof5.net/iframe-https.html" width="300" height="250"></iframe>
+            </div>
+            <div style="display: inline-block; margin: 10px; text-align: left;">
+                <div style="margin-bottom: 4px;">Fully sandboxed HTTPS iframe.</div>
+                <iframe sandbox src="https://test-only-iframe.reflect.demof5.net/iframe-sandbox-https.html" width="300" height="250"></iframe>
+            </div>
+            <div style="display: inline-block; margin: 10px; text-align: left;">
+                <div style="margin-bottom: 4px;">Cross-domain HTTPS iframe. X-Frame-Options not supported if visible.</div>
+                <iframe src="https://test-only-iframe.reflect.demof5.net/xframes/xframe-https.html" width="300" height="250"></iframe>
+            </div>
+            <div style="display: inline-block; margin: 10px; text-align: left;">
+                <div style="margin-bottom: 4px;">framebust test</div>
+                <iframe src="https://test-only-iframe.reflect.demof5.net/framebust.html" width="300" height="250"></iframe>
+            </div>
 
-<h1> Images </h1>
-<img src="http://test-only-webbug.reflect.f5xc.co.uk/webbug-http.jpg" width="120" height="120">
-<img src="https://test-only-webbug.reflect.f5xc.co.uk/webbug-https.jpg" width="120" height="120">
-<img src="http://test-only.reflect.archf5.com/local-http.jpg" width="120" height="120">
-<img src="https://test-only.reflect.archf5.com/local-https.jpg" width="120" height="120">
-<img src="http://subdomain.test-only.reflect.archf5.com/subdomain-http.jpg" width="120" height="120">
-<br><h1> Scripts </h1>
-<script>
-document.write('<img src="https://test-only.reflect.archf5.com/script-inline.jpg" width="120" height="120"></img>')
-</script>
-<script src="https://test-only-webbug.reflect.f5xc.co.uk/offdomain.js"></script>
-<script src="https://test-only.reflect.archf5.com/ondomain.js"></script>
-</body></html>`;
+            <h1> Images </h1>
+            <img src="http://test-only-webbug.reflect.f5xc.co.uk/webbug-http.jpg" width="120" height="120">
+            <img src="https://test-only-webbug.reflect.f5xc.co.uk/webbug-https.jpg" width="120" height="120">
+            <img src="http://test-only.reflect.archf5.com/local-http.jpg" width="120" height="120">
+            <img src="https://test-only.reflect.archf5.com/local-https.jpg" width="120" height="120">
+            <img src="http://subdomain.test-only.reflect.archf5.com/subdomain-http.jpg" width="120" height="120">
+            <br><h1> Scripts </h1>
+            <script>
+            document.write('<img src="https://test-only.reflect.archf5.com/script-inline.jpg" width="120" height="120"></img>')
+            </script>
+            <script src="https://test-only-webbug.reflect.f5xc.co.uk/offdomain.js"></script>
+            <script src="https://test-only.reflect.archf5.com/ondomain.js"></script>
+            </body></html>`;
         r.return(200, html);
         return;
     }
@@ -225,11 +225,11 @@ document.write('<img src="https://test-only.reflect.archf5.com/script-inline.jpg
         setCommonHeaders(r);
         r.headersOut['Content-Type'] = 'text/html';
         const html = `
-<html><head><style id="antiClickjack">body{display:none !important;}</style></head>
-<body style="background-color:#25DEB3">
-<h1>Framebuster failed</h1>
-<script src="https://test-only.reflect.archf5.com/framebust.js"></script>
-</body></html>`;
+            <html><head><style id="antiClickjack">body{display:none !important;}</style></head>
+            <body style="background-color:#25DEB3">
+            <h1>Framebuster failed</h1>
+            <script src="https://test-only.reflect.archf5.com/framebust.js"></script>
+            </body></html>`;
         r.return(200, html);
         return;
     }
@@ -263,10 +263,10 @@ document.write('<img src="https://test-only.reflect.archf5.com/script-inline.jpg
         setCommonHeaders(r);
         r.headersOut['Content-Type'] = 'application/javascript';
         r.return(200, `
-if (self === top) {
-var antiClickjack = document.getElementById("antiClickjack");
-if (antiClickjack) antiClickjack.parentNode.removeChild(antiClickjack);
-}`);
+            if (self === top) {
+            var antiClickjack = document.getElementById("antiClickjack");
+            if (antiClickjack) antiClickjack.parentNode.removeChild(antiClickjack);
+            }`);
         return;
     }
 
