@@ -205,7 +205,7 @@ function iframe_rule(r) {
 </div>
 
 <h1> Images </h1>
-<img src="http://test-only-webbug.reflect.archf5.com/webbug-http.jpg" width="120" height="120">
+<img src="http://test-only-webbug.reflect.f5xc.co.uk/webbug-http.jpg" width="120" height="120">
 <img src="https://test-only-webbug.reflect.f5xc.co.uk/webbug-https.jpg" width="120" height="120">
 <img src="http://test-only.reflect.archf5.com/local-http.jpg" width="120" height="120">
 <img src="https://test-only.reflect.archf5.com/local-https.jpg" width="120" height="120">
