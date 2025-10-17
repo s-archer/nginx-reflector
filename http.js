@@ -183,24 +183,24 @@ function iframe_rule(r) {
 <head><meta charset="UTF-8"><title>Test Page</title></head>
 <body bgcolor="Green">
 <h1> iFrame </h1>
-<iframe src="http://test-only-iframe.archf5.com:446/iframe-http.html" width="300" height="250"></iframe>
-<iframe src="https://test-only-iframe.archf5.com:446/iframe-https.html" width="300" height="250"></iframe>
-<iframe sandbox src="https://test-only-iframe.archf5.com:446/iframe-sandbox-https.html" width="300" height="250"></iframe>
-<iframe src="https://test-only-iframe.archf5.com:446/xframes/xframe-https.html" width="300" height="250"></iframe>
-<iframe src="https://test-only-iframe.archf5.com:446/framebust.html" width="300" height="250"></iframe>
+<iframe src="http://test-only-iframe.reflect.demof5.net/iframe-http.html" width="300" height="250"></iframe>
+<iframe src="https://test-only-iframe.reflect.demof5.net/iframe-https.html" width="300" height="250"></iframe>
+<iframe sandbox src="https://test-only-iframe.reflect.demof5.net/iframe-sandbox-https.html" width="300" height="250"></iframe>
+<iframe src="https://test-only-iframe.reflect.demof5.net/xframes/xframe-https.html" width="300" height="250"></iframe>
+<iframe src="https://test-only-iframe.reflect.demof5.net/framebust.html" width="300" height="250"></iframe>
 
 <h1> Images </h1>
-<img src="http://test-only-webbug.archf5.com/webbug-http.jpg" width="120" height="120">
-<img src="https://test-only-webbug.archf5.com:445/webbug-https.jpg" width="120" height="120">
-<img src="http://test-only.archf5.com/local-http.jpg" width="120" height="120">
-<img src="https://test-only.archf5.com/local-https.jpg" width="120" height="120">
-<img src="http://subdomain.test-only.archf5.com/subdomain-http.jpg" width="120" height="120">
+<img src="http://test-only-webbug.reflect.archf5.com/webbug-http.jpg" width="120" height="120">
+<img src="https://test-only-webbug.reflect.f5xc.co.uk/webbug-https.jpg" width="120" height="120">
+<img src="http://test-only.reflect.archf5.com/local-http.jpg" width="120" height="120">
+<img src="https://test-only.reflect.archf5.com/local-https.jpg" width="120" height="120">
+<img src="http://subdomain.test-only.reflect.archf5.com/subdomain-http.jpg" width="120" height="120">
 <br><h1> Scripts </h1>
 <script>
-document.write('<img src="https://test-only.archf5.com/script-inline.jpg" width="120" height="120"></img>')
+document.write('<img src="https://test-only.reflect.archf5.com/script-inline.jpg" width="120" height="120"></img>')
 </script>
-<script src="https://test-only-webbug.archf5.com:445/offdomain.js"></script>
-<script src="https://test-only.archf5.com/ondomain.js"></script>
+<script src="https://test-only-webbug.reflect.f5xc.co.uk/offdomain.js"></script>
+<script src="https://test-only.reflect.archf5.com/ondomain.js"></script>
 </body></html>`;
         r.return(200, html);
         return;
@@ -213,7 +213,7 @@ document.write('<img src="https://test-only.archf5.com/script-inline.jpg" width=
 <html><head><style id="antiClickjack">body{display:none !important;}</style></head>
 <body style="background-color:#25DEB3">
 <h1>Framebuster failed</h1>
-<script src="https://test-only.archf5.com/framebust.js"></script>
+<script src="https://test-only.reflect.archf5.com/framebust.js"></script>
 </body></html>`;
         r.return(200, html);
         return;
@@ -233,7 +233,7 @@ document.write('<img src="https://test-only.archf5.com/script-inline.jpg" width=
 
     if (path === "/iframe-sandbox-https.html") {
         setCommonHeaders(r);
-        r.return(200, `<html><body style="background-color:#15DEB3"><h1>Fully sandboxed HTTPS iframe.</h1><script src="https://test-only.archf5.com/sandbox-check.js"></script></body></html>`);
+        r.return(200, `<html><body style="background-color:#15DEB3"><h1>Fully sandboxed HTTPS iframe.</h1><script src="https://test-only.reflect.archf5.com/sandbox-check.js"></script></body></html>`);
         return;
     }
 
@@ -258,21 +258,21 @@ if (self === top) {
     if (path === "/offdomain.js") {
         setCommonHeaders(r);
         r.headersOut['Content-Type'] = 'application/javascript';
-        r.return(200, `document.write('<img src="https://test-only-webbug.archf5.com:445/script-offdomain.jpg" width="120" height="120"></img>')`);
+        r.return(200, `document.write('<img src="https://test-only-webbug.reflect.f5xc.co.uk/script-offdomain.jpg" width="120" height="120"></img>')`);
         return;
     }
 
     if (path === "/ondomain.js") {
         setCommonHeaders(r);
         r.headersOut['Content-Type'] = 'application/javascript';
-        r.return(200, `document.write('<img src="https://test-only-webbug.archf5.com:445/script-ondomain.jpg" width="120" height="120"></img>')`);
+        r.return(200, `document.write('<img src="https://test-only-webbug.reflect.f5xc.co.uk/script-ondomain.jpg" width="120" height="120"></img>')`);
         return;
     }
 
     if (path === "/sandbox-check.js") {
         setCommonHeaders(r);
         r.headersOut['Content-Type'] = 'application/javascript';
-        r.return(200, `document.write('<img src="https://test-only-webbug.archf5.com:445/sandbox-check.jpg" width="120" height="120"></img>')`);
+        r.return(200, `document.write('<img src="https://test-only-webbug.reflect.f5xc.co.uk/sandbox-check.jpg" width="120" height="120"></img>')`);
         return;
     }
 
