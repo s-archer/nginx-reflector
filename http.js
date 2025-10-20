@@ -207,15 +207,13 @@ function iframe_rule(r) {
             <h1> Images </h1>
             <img src="http://test-only-webbug.reflect.f5xc.co.uk/webbug-http.jpg" width="120" height="120">
             <img src="https://test-only-webbug.reflect.f5xc.co.uk/webbug-https.jpg" width="120" height="120">
-            <img src="http://test-only.reflect.archf5.com/local-http.jpg" width="120" height="120">
-            <img src="https://test-only.reflect.archf5.com/local-https.jpg" width="120" height="120">
-            <img src="http://subdomain.test-only.reflect.archf5.com/subdomain-http.jpg" width="120" height="120">
+            <img src="http://reflect.archf5.com/local-http.jpg" width="120" height="120">
+            <img src="https://reflect.archf5.com/local-https.jpg" width="120" height="120">
+            <img src="http://subdomain.reflect.archf5.com/subdomain-http.jpg" width="120" height="120">
             <br><h1> Scripts </h1>
-            <script>
-            document.write('<img src="https://test-only.reflect.archf5.com/script-inline.jpg" width="120" height="120"></img>')
-            </script>
+            <script>document.write('<img src="https://reflect.archf5.com/script-inline.jpg" width="120" height="120"></img>')</script>
             <script src="https://test-only-webbug.reflect.f5xc.co.uk/offdomain.js"></script>
-            <script src="https://test-only.reflect.archf5.com/ondomain.js"></script>
+            <script src="https://reflect.archf5.com/ondomain.js"></script>
             </body></html>`;
         r.return(200, html);
         return;
@@ -248,7 +246,7 @@ function iframe_rule(r) {
 
     if (path === "/iframe-sandbox-https.html") {
         setCommonHeaders(r);
-        r.return(200, `<html><body style="background-color:#15DEB3"><h1>Fully sandboxed HTTPS iframe.</h1><h1>Script Blocked.</h1><script src="https://test-only.reflect.archf5.com/sandbox-check.js"></script></body></html>`);
+        r.return(200, `<html><body style="background-color:#15DEB3"><h1>Fully sandboxed HTTPS iframe.</h1><h1>Script Blocked.</h1><script src="https://reflect.archf5.com/sandbox-check.js"></script></body></html>`);
         return;
     }
 
