@@ -124,17 +124,66 @@ function path_rule(r) {
     } else if (r.uri === "/redirected") {
         title = "Redirected Page";
         bodyText = "You have been redirected here.";
+    // } else if (r.uri === "/response-headers") {
+    //     r.headersOut['Content-Type'] = 'text/html';
+    //     r.headersOut['Strict-Transport-Security'] = 'max-age=20000000';
+    //     r.headersOut['Set-Cookie'] = [
+    //         'weak-cookie=weakphrase; Path=/response-headers',
+    //         'other-cookie=value-xyz'
+    //     ];
+    //     title = "Hello Page";
+    //     bodyText = "Welcome to the Response Headers Page! Use a query parameter to set the size (bytes) of an 'oversize-cookie' (e.g. /response-headers?size=4000). Use /response-headers?include-attack=true to include and attack embedded at the end of the cookie.  Look at developer tools to see the following headers:</p>";
+
+    //     // Iterate over r.headersOut and append them to the bodyText
+    //     bodyText += "<h2>Response Headers:</h2>";
+    //     for (const header in r.headersOut) {
+    //         bodyText += `<p>${header}: ${r.headersOut[header]}</p>`;
+    //     }
     } else if (r.uri === "/response-headers") {
         r.headersOut['Content-Type'] = 'text/html';
         r.headersOut['Strict-Transport-Security'] = 'max-age=20000000';
+
+        // --- Parse query parameters ---
+        const args = r.args || {};
+        const sizeParam = args.size ? parseInt(args.size, 10) : null;
+        const includeAttack = args.include_attack === "true" || args.includeAttack === "true";
+
+        // --- Default cookie value ---
+        let oversizedValue = "to-set-size-use-query-parameter";
+
+        if (sizeParam && sizeParam > 0) {
+            let attackString = "";
+
+            if (includeAttack) {
+                // Simple WAF-triggering payload (adjust as needed for your testing)
+                attackString = "<script>alert('xss')</script>";
+            }
+
+            // Ensure attack string is at the END and included in total size
+            const baseSize = sizeParam - attackString.length;
+
+            if (baseSize > 0) {
+                // Generate filler (repeatable pattern)
+                const filler = "A".repeat(baseSize);
+                oversizedValue = filler + attackString;
+            } else {
+                // If requested size is smaller than attack string, truncate attack string
+                oversizedValue = attackString.substring(0, sizeParam);
+            }
+        }
+
+        // --- Set cookies ---
         r.headersOut['Set-Cookie'] = [
             'weak-cookie=weakphrase; Path=/response-headers',
-            'other-cookie=value-xyz'
+            'other-cookie=value-xyz',
+            `oversized-cookie=${oversizedValue}; Path=/response-headers`
         ];
-        title = "Hello Page";
-        bodyText = "Welcome to the Response Headers Page! Look at developer tools to see the following headers:</p>";
 
-        // Iterate over r.headersOut and append them to the bodyText
+        title = "Hello Page";
+        bodyText = "Welcome to the Response Headers Page! Use a query parameter to set the size (bytes) of an 'oversized-cookie' (e.g. /response-headers?size=4000). ";
+        bodyText += "Use /response-headers?include-attack=true to include an attack string at the end of the cookie. Look at developer tools to see the following headers:</p>";
+
+        // --- Display headers ---
         bodyText += "<h2>Response Headers:</h2>";
         for (const header in r.headersOut) {
             bodyText += `<p>${header}: ${r.headersOut[header]}</p>`;
