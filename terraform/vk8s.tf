@@ -55,7 +55,7 @@ resource "kubernetes_deployment_v1" "nginx-reflector" {
   }
 }
 
-resource "kubernetes_service" "nginx-reflector" {
+resource "kubernetes_service_v1" "nginx-reflector" {
   metadata {
     name = "nginx-reflector"
     namespace = var.xc_namespace
