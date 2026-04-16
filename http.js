@@ -184,10 +184,35 @@ function path_rule(r) {
         bodyText += "Use /response-headers?include-attack=true to include an attack string at the end of the cookie. Look at developer tools to see the following headers:</p>";
 
         // --- Display headers ---
-        bodyText += "<h2>Response Headers:</h2>";
-        for (const header in r.headersOut) {
-            bodyText += `<p>${header}: ${r.headersOut[header]}</p>`;
+        // bodyText += "<h2>Response Headers:</h2>";
+        // for (const header in r.headersOut) {
+        //     bodyText += `<p>${header}: ${r.headersOut[header]}</p>`;
+        // }
+
+        bodyText += `
+        <style>
+        .wrap {
+            word-break: break-all;        /* breaks long strings anywhere */
+            overflow-wrap: anywhere;      /* modern equivalent */
+            white-space: pre-wrap;        /* preserves formatting but allows wrapping */
+            font-family: monospace;
         }
+        </style>
+        `;
+
+        bodyText += "<h2>Response Headers:</h2>";
+
+        for (const header in r.headersOut) {
+            let value = r.headersOut[header];
+
+            // If header is an array (e.g. Set-Cookie), join safely
+            if (Array.isArray(value)) {
+                value = value.join("\n");
+            }
+
+            bodyText += `<div class="wrap"><strong>${header}:</strong> ${value}</div>`;
+        }
+        
     } else if (r.uri === "/summary") {
         title = "Summary of Headers Received";
         bodyText = summary(r);
