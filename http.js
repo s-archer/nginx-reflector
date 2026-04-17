@@ -132,7 +132,7 @@ function path_rule(r) {
         const args = r.args || {};
         const sizeParam = args.size ? parseInt(args.size, 10) : null;
         const includeAttack =
-            args["include-attack"] === "true" ||
+            args.include-attack === "true" ||
             args.include_attack === "true" ||
             args.attack-enable === "true" ||
             args.attack_enable === "true";
@@ -141,25 +141,17 @@ function path_rule(r) {
         let oversizedValue = "to-set-size-use-query-parameter";
 
         if (sizeParam && sizeParam > 0) {
-            let attackString = "";
+            let attackString = includeAttack ? "<script>alert('xss')</script>" : "";
 
-            if (includeAttack) {
-                // Simple WAF-triggering payload (adjust as needed for your testing)
-                attackString = "<script>alert('xss')</script>";
-            }
-
-            // Ensure attack string is at the END and included in total size
             const baseSize = sizeParam - attackString.length;
 
             if (baseSize > 0) {
-                // Generate filler (repeatable pattern)
-                const filler = "A".repeat(baseSize);
-                oversizedValue = filler + attackString;
+                oversizedValue = "A".repeat(baseSize) + attackString;
             } else {
-                // If requested size is smaller than attack string, truncate attack string
-                oversizedValue = attackString.substring(0, sizeParam);
+                oversizedValue = "size-too-small";
             }
         }
+
 
         // --- Set cookies ---
         r.headersOut['Set-Cookie'] = [
@@ -191,16 +183,24 @@ function path_rule(r) {
 
         bodyText += "<h2>Response Headers:</h2>";
 
+        // Normal headers (exclude Set-Cookie)
         for (const header in r.headersOut) {
-            let value = r.headersOut[header];
+            if (header.toLowerCase() === "set-cookie") continue;
 
-            // If header is an array (e.g. Set-Cookie), join safely
-            if (Array.isArray(value)) {
-                value = value.join("\n");
-            }
-
-            bodyText += `<div class="wrap"><strong>${header}:</strong> ${value}</div>`;
+            bodyText += `<p>${header}: ${r.headersOut[header]}</p>`;
         }
+
+        // Handle Set-Cookie properly
+        const cookies = r.headersOut['Set-Cookie'];
+
+        if (Array.isArray(cookies)) {
+            cookies.forEach(cookie => {
+                bodyText += `<p>Set-Cookie: ${cookie}</p>`;
+            });
+        } else if (cookies) {
+            bodyText += `<p>Set-Cookie: ${cookies}</p>`;
+        }
+
 
     } else if (r.uri === "/summary") {
         title = "Summary of Headers Received";
