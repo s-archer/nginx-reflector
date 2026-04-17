@@ -132,10 +132,11 @@ function path_rule(r) {
         const args = r.args || {};
         const sizeParam = args.size ? parseInt(args.size, 10) : null;
         const includeAttack =
-            args.include-attack === "true" ||
+            args["include-attack"] === "true" ||
             args.include_attack === "true" ||
-            args.attack-enable === "true" ||
+            args["attack-enable"] === "true" ||
             args.attack_enable === "true";
+
 
         // --- Default cookie value ---
         let oversizedValue = "to-set-size-use-query-parameter";
