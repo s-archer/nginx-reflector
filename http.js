@@ -124,21 +124,6 @@ function path_rule(r) {
     } else if (r.uri === "/redirected") {
         title = "Redirected Page";
         bodyText = "You have been redirected here.";
-    // } else if (r.uri === "/response-headers") {
-    //     r.headersOut['Content-Type'] = 'text/html';
-    //     r.headersOut['Strict-Transport-Security'] = 'max-age=20000000';
-    //     r.headersOut['Set-Cookie'] = [
-    //         'weak-cookie=weakphrase; Path=/response-headers',
-    //         'other-cookie=value-xyz'
-    //     ];
-    //     title = "Hello Page";
-    //     bodyText = "Welcome to the Response Headers Page! Use a query parameter to set the size (bytes) of an 'oversize-cookie' (e.g. /response-headers?size=4000). Use /response-headers?include-attack=true to include and attack embedded at the end of the cookie.  Look at developer tools to see the following headers:</p>";
-
-    //     // Iterate over r.headersOut and append them to the bodyText
-    //     bodyText += "<h2>Response Headers:</h2>";
-    //     for (const header in r.headersOut) {
-    //         bodyText += `<p>${header}: ${r.headersOut[header]}</p>`;
-    //     }
     } else if (r.uri === "/response-headers") {
         r.headersOut['Content-Type'] = 'text/html';
         r.headersOut['Strict-Transport-Security'] = 'max-age=20000000';
@@ -146,7 +131,11 @@ function path_rule(r) {
         // --- Parse query parameters ---
         const args = r.args || {};
         const sizeParam = args.size ? parseInt(args.size, 10) : null;
-        const includeAttack = args.include_attack === "true" || args.includeAttack === "true";
+        const includeAttack =
+            args["include-attack"] === "true" ||
+            args.include_attack === "true" ||
+            args.attack-enable === "true" ||
+            args.attack_enable === "true";
 
         // --- Default cookie value ---
         let oversizedValue = "to-set-size-use-query-parameter";
@@ -179,7 +168,7 @@ function path_rule(r) {
             `oversized-cookie=${oversizedValue}; Path=/response-headers`
         ];
 
-        title = "Hello Page";
+        title = "Response Headers Page";
         bodyText = "Welcome to the Response Headers Page! Use a query parameter to set the size (bytes) of an 'oversized-cookie' (e.g. /response-headers?size=4000). ";
         bodyText += "Use /response-headers?include-attack=true to include an attack string at the end of the cookie. Look at developer tools to see the following headers:</p>";
 
@@ -212,7 +201,7 @@ function path_rule(r) {
 
             bodyText += `<div class="wrap"><strong>${header}:</strong> ${value}</div>`;
         }
-        
+
     } else if (r.uri === "/summary") {
         title = "Summary of Headers Received";
         bodyText = summary(r);
