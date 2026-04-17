@@ -131,12 +131,15 @@ function path_rule(r) {
         // --- Parse query parameters ---
         const args = r.args || {};
         const sizeParam = args.size ? parseInt(args.size, 10) : null;
+
         const includeAttack =
             args["include-attack"] === "true" ||
             args.include_attack === "true" ||
             args["attack-enable"] === "true" ||
             args.attack_enable === "true";
 
+        // NEW: position param (default = "end")
+        const position = args.position === "start" ? "start" : "end";
 
         // --- Default cookie value ---
         let oversizedValue = "to-set-size-use-query-parameter";
@@ -147,11 +150,23 @@ function path_rule(r) {
             const baseSize = sizeParam - attackString.length;
 
             if (baseSize > 0) {
-                oversizedValue = "A".repeat(baseSize) + attackString;
+                const filler = "A".repeat(baseSize);
+
+                if (includeAttack) {
+                    if (position === "start") {
+                        oversizedValue = attackString + filler;
+                    } else {
+                        oversizedValue = filler + attackString;
+                    }
+                } else {
+                    oversizedValue = filler;
+                }
+
             } else {
                 oversizedValue = "size-too-small";
             }
         }
+
 
 
         // --- Set cookies ---
