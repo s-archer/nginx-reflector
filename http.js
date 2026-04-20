@@ -124,7 +124,7 @@ function path_rule(r) {
     } else if (r.uri === "/redirected") {
         title = "Redirected Page";
         bodyText = "You have been redirected here.";
-    } else if (r.uri === "/response-headers") {
+    } else if (r.uri === "/output-headers") {
         r.headersOut['Content-Type'] = 'text/html';
         r.headersOut['Strict-Transport-Security'] = 'max-age=20000000';
 
@@ -167,55 +167,92 @@ function path_rule(r) {
             }
         }
 
-
-
         // --- Set cookies ---
         r.headersOut['Set-Cookie'] = [
-            'weak-cookie=weakphrase; Path=/response-headers',
+            'weak-cookie=weakphrase; Path=/output-headers',
             'other-cookie=value-xyz',
-            `oversized-cookie=${oversizedValue}; Path=/response-headers`
+            `oversized-cookie=${oversizedValue}; Path=/output-headers`
         ];
 
-        title = "Response Headers Page";
-        bodyText = "Welcome to the Response Headers Page! Use a query parameter to set the size (bytes) of an 'oversized-cookie' (e.g. /response-headers?size=4000). ";
-        bodyText += "Use /response-headers?include-attack=true to include an attack string at the end of the cookie. Look at developer tools to see the following headers:</p>";
-
-        // --- Display headers ---
-        // bodyText += "<h2>Response Headers:</h2>";
-        // for (const header in r.headersOut) {
-        //     bodyText += `<p>${header}: ${r.headersOut[header]}</p>`;
-        // }
+        title = "Output Headers Page";
+        bodyText = "Welcome to the Output Headers Page! Use a query parameter to set the size (bytes) of an 'oversized-cookie' (e.g. /output-headers?size=4000). ";
+        bodyText += "Use /output-headers?include-attack=true to include an attack string at the end of the cookie.</p>";
 
         bodyText += `
         <style>
         .wrap {
-            word-break: break-all;        /* breaks long strings anywhere */
-            overflow-wrap: anywhere;      /* modern equivalent */
-            white-space: pre-wrap;        /* preserves formatting but allows wrapping */
+            word-break: break-all;
+            overflow-wrap: anywhere;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1rem 0 2rem 0;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background: #f5f5f5;
+        }
+        .bytes {
+            white-space: nowrap;
             font-family: monospace;
         }
         </style>
         `;
 
-        bodyText += "<h2>Response Headers:</h2>";
-
-        // Normal headers (exclude Set-Cookie)
-        for (const header in r.headersOut) {
-            if (header.toLowerCase() === "set-cookie") continue;
-
-            bodyText += `<p>${header}: ${r.headersOut[header]}</p>`;
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
         }
 
-        // Handle Set-Cookie properly
-        const cookies = r.headersOut['Set-Cookie'];
+        function byteSize(str) {
+            return Buffer.byteLength(String(str));
+        }
 
-        if (Array.isArray(cookies)) {
-            cookies.forEach(cookie => {
-                bodyText += `<p>Set-Cookie: ${cookie}</p>`;
+        function renderHeaderTable(titleText, headers) {
+            let html = `<h2>${escapeHtml(titleText)}</h2>`;
+            html += `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Size (bytes)</th>
+                            <th>Content</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            headers.forEach(([name, value]) => {
+                html += `
+                    <tr>
+                        <td class="wrap">${escapeHtml(name)}</td>
+                        <td class="bytes">${byteSize(value)}</td>
+                        <td class="wrap">${escapeHtml(value)}</td>
+                    </tr>
+                `;
             });
-        } else if (cookies) {
-            bodyText += `<p>Set-Cookie: ${cookies}</p>`;
+
+            html += `
+                    </tbody>
+                </table>
+            `;
+            return html;
         }
+
+        bodyText += renderHeaderTable("Request Headers", r.rawHeadersIn);
+        bodyText += renderHeaderTable("Response Headers", r.rawHeadersOut);
 
 
     } else if (r.uri === "/summary") {
