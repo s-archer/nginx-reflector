@@ -168,11 +168,30 @@ function path_rule(r) {
         }
 
         // --- Set cookies ---
-        r.headersOut['Set-Cookie'] = [
+        // r.headersOut['Set-Cookie'] = [
+        //     'weak-cookie=weakphrase; Path=/output-headers',
+        //     'other-cookie=value-xyz',
+        //     `oversized-cookie=${oversizedValue}; Path=/output-headers`
+        // ];
+
+        let cookies = [
             'weak-cookie=weakphrase; Path=/output-headers',
-            'other-cookie=value-xyz',
-            `oversized-cookie=${oversizedValue}; Path=/output-headers`
+            'other-cookie=value-xyz'
         ];
+
+        if (sizeParam && sizeParam > 0) {
+            const chunkSize = 2048; // 2KB per cookie (safe for njs)
+            const numCookies = Math.ceil(sizeParam / chunkSize);
+
+            for (let i = 0; i < numCookies; i++) {
+                const thisSize = Math.min(chunkSize, sizeParam - (i * chunkSize));
+                const value = "A".repeat(thisSize);
+                cookies.push(`chunk-${i}=${value}; Path=/output-headers`);
+            }
+        }
+
+        r.headersOut['Set-Cookie'] = cookies;
+
 
         title = "Output Headers Page";
         bodyText = "Welcome to the Output Headers Page! Use a query parameter to set the size (bytes) of an 'oversized-cookie' (e.g. /output-headers?size=4000). ";
