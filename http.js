@@ -284,7 +284,22 @@ function path_rule(r) {
 
         r.headersOut['Content-Type'] = 'text/plain';
         r.return(200, "A".repeat(sizeParam));
-    }else {
+    } } else if (r.uri === "/output-headers-safe") {
+        const args = r.args || {};
+        const sizeParam = args.size ? parseInt(args.size, 10) : 0;
+
+        let cookies = [];
+
+        const chunkSize = 1024; // deliberately small
+        const count = Math.ceil(sizeParam / chunkSize);
+
+        for (let i = 0; i < count; i++) {
+            cookies.push(`c${i}=${"A".repeat(chunkSize)}; Path=/`);
+        }
+
+        r.headersOut['Set-Cookie'] = cookies;
+        r.return(200, "OK");
+    } else {
         return iframe_rule(r); // Delegate to iRule-style handler if matched
     }
 
