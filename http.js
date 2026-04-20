@@ -234,14 +234,15 @@ function path_rule(r) {
                     <tbody>
             `;
 
-            headers.forEach(([name, value]) => {
-                html += `
-                    <tr>
-                        <td class="wrap">${escapeHtml(name)}</td>
-                        <td class="bytes">${byteSize(value)}</td>
-                        <td class="wrap">${escapeHtml(value)}</td>
-                    </tr>
-                `;
+            headers.forEach(function (pair) {
+                var name = pair[0];
+                var value = pair[1];
+
+                html += '<tr>' +
+                    '<td class="wrap">' + escapeHtml(name) + '</td>' +
+                    '<td class="bytes">' + byteSize(value) + '</td>' +
+                    '<td class="wrap">' + escapeHtml(value) + '</td>' +
+                '</tr>';
             });
 
             html += `
