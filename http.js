@@ -278,11 +278,13 @@ function path_rule(r) {
     } else if (r.uri === "/summary") {
         title = "Summary of Headers Received";
         bodyText = summary(r);
-    // } else if (r.uri === "/scripts") {
-    //     title = "Execute some scripts for CSD";
-    //     bodyText = "Execute some scripts for CSD";
-    //     scripts = generateScripts();
-    } else {
+    } else if (r.uri === "/output-body") {
+        const args = r.args || {};
+        const sizeParam = args.size ? parseInt(args.size, 10) : 0;
+
+        r.headersOut['Content-Type'] = 'text/plain';
+        r.return(200, "A".repeat(sizeParam));
+    }else {
         return iframe_rule(r); // Delegate to iRule-style handler if matched
     }
 
