@@ -142,28 +142,45 @@ function path_rule(r) {
         const position = args.position === "start" ? "start" : "end";
 
         // --- Default cookie value ---
-        let oversizedValue = "to-set-size-use-query-parameter";
+        // let oversizedValue = "to-set-size-use-query-parameter";
 
-        if (sizeParam && sizeParam > 0) {
-            let attackString = includeAttack ? "<script>alert('xss')</script>" : "";
+        // if (sizeParam && sizeParam > 0) {
+        //     let attackString = includeAttack ? "<script>alert('xss')</script>" : "";
 
-            const baseSize = sizeParam - attackString.length;
+        //     const baseSize = sizeParam - attackString.length;
 
-            if (baseSize > 0) {
-                const filler = "A".repeat(baseSize);
+        //     if (baseSize > 0) {
+        //         const filler = "A".repeat(baseSize);
 
-                if (includeAttack) {
-                    if (position === "start") {
-                        oversizedValue = attackString + filler;
-                    } else {
-                        oversizedValue = filler + attackString;
-                    }
-                } else {
-                    oversizedValue = filler;
-                }
+        //         if (includeAttack) {
+        //             if (position === "start") {
+        //                 oversizedValue = attackString + filler;
+        //             } else {
+        //                 oversizedValue = filler + attackString;
+        //             }
+        //         } else {
+        //             oversizedValue = filler;
+        //         }
 
+        //     } else {
+        //         oversizedValue = "size-too-small";
+        //     }
+        // }
+        let attack = includeAttack ? "<script>alert('xss')</script>" : "";
+
+        function buildValue(size) {
+            const base = size - attack.length;
+
+            if (base <= 0) return "small";
+
+            const filler = "A".repeat(base);
+
+            if (!includeAttack) return filler;
+
+            if (position === "start") {
+                return attack + filler;
             } else {
-                oversizedValue = "size-too-small";
+                return filler + attack;
             }
         }
 
@@ -185,8 +202,10 @@ function path_rule(r) {
 
             for (let i = 0; i < numCookies; i++) {
                 const thisSize = Math.min(chunkSize, sizeParam - (i * chunkSize));
-                const value = "A".repeat(thisSize);
-                cookies.push(`chunk-${i}=${value}; Path=/output-headers`);
+                // const value = "A".repeat(thisSize);
+                // cookies.push(`chunk-${i}=${value}; Path=/output-headers`);
+                const value = buildValue(thisSize);
+                cookies.push(`chunk-${i}=${value}; Path=/`);
             }
         }
 
