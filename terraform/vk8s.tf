@@ -24,7 +24,8 @@ resource "kubernetes_deployment_v1" "nginx-reflector" {
         container {
           image = "ghcr.io/s-archer/nginx-reflector:main"
           image_pull_policy = "Always"
-          name = var.xc_deployment_name
+          # name = var.xc_deployment_name
+          name = "kick"
           port {
             container_port = 8080
             protocol = "TCP"
