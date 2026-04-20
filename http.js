@@ -284,7 +284,7 @@ function path_rule(r) {
 
         r.headersOut['Content-Type'] = 'text/plain';
         r.return(200, "A".repeat(sizeParam));
-    } } else if (r.uri === "/output-headers-safe") {
+    } else if (r.uri === "/output-headers-safe") {
         const args = r.args || {};
         const sizeParam = args.size ? parseInt(args.size, 10) : 0;
 
