@@ -124,7 +124,7 @@ function path_rule(r) {
     } else if (r.uri === "/redirected") {
         title = "Redirected Page";
         bodyText = "You have been redirected here.";
-    } else if (r.uri === "/output-headers") {
+    } else if (r.uri === "/output-headers" || r.uri === "/waf-bypass") {
         r.headersOut['Content-Type'] = 'text/html';
         r.headersOut['Strict-Transport-Security'] = 'max-age=20000000';
 
@@ -142,30 +142,7 @@ function path_rule(r) {
         const position = args.position === "start" ? "start" : "end";
 
         // --- Default cookie value ---
-        // let oversizedValue = "to-set-size-use-query-parameter";
 
-        // if (sizeParam && sizeParam > 0) {
-        //     let attackString = includeAttack ? "<script>alert('xss')</script>" : "";
-
-        //     const baseSize = sizeParam - attackString.length;
-
-        //     if (baseSize > 0) {
-        //         const filler = "A".repeat(baseSize);
-
-        //         if (includeAttack) {
-        //             if (position === "start") {
-        //                 oversizedValue = attackString + filler;
-        //             } else {
-        //                 oversizedValue = filler + attackString;
-        //             }
-        //         } else {
-        //             oversizedValue = filler;
-        //         }
-
-        //     } else {
-        //         oversizedValue = "size-too-small";
-        //     }
-        // }
         let attack = includeAttack ? "<script>alert('xss')</script>" : "";
 
         function buildValue(size) {
