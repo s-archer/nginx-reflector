@@ -273,7 +273,7 @@ function path_rule(r) {
         }
 
         bodyText += renderHeaderTable("Request Headers", r.rawHeadersIn);
-        bodyText += renderHeaderTable("Response Headers", r.rawHeadersOut);
+        // bodyText += renderHeaderTable("Response Headers", r.rawHeadersOut);
 
 
     } else if (r.uri === "/summary") {
