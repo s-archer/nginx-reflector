@@ -125,8 +125,6 @@ function path_rule(r) {
         title = "Redirected Page";
         bodyText = "You have been redirected here.";
     } else if (r.uri === "/output-headers" || r.uri === "/waf-bypass") {
-        r.headersOut['Content-Type'] = 'text/html';
-        r.headersOut['Strict-Transport-Security'] = 'max-age=20000000';
 
         // --- Parse query parameters ---
         const args = r.args || {};
@@ -169,7 +167,7 @@ function path_rule(r) {
         // ];
 
         let cookies = [
-            'weak-cookie=weakphrase; Path=/output-headers',
+            'weak-cookie=weakphrase; Path=/',
             'other-cookie=value-xyz'
         ];
 
@@ -190,7 +188,9 @@ function path_rule(r) {
             cookies.push(`oversized-cookie=${value}; Path=/`);
         }
 
-        r.headersOut['Set-Cookie'] = cookies;
+        // r.headersOut['Set-Cookie'] = cookies;
+        cookies.forEach(c => r.headersOut['Set-Cookie'] = c);
+
 
 
         title = "Output Headers Page";
