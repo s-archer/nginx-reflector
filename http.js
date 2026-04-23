@@ -32,22 +32,22 @@ function redirect(r) {
 }
 
 // ----------------- Reusable HTML generator -----------------
-function generateScripts() {
-    return `<script>
-(async function showQuotableAlert(){
-  const url = "https://type.fit/api/quotes";
-  try {
-    const res = await fetch(url, { cache: "no-store" });
-    if(!res.ok) throw new Error("Network response not OK");
-    const data = await res.json();
-    const text = "Unknown";
-    alert("Quote of the moment" + text);
-  } catch (err) {
-    console.warn("Quotable fetch failed:", err);
-  }
-})();
-</script>`
-}
+// function generateScripts() {
+//     return `<script>
+// (async function showQuotableAlert(){
+//   const url = "https://type.fit/api/quotes";
+//   try {
+//     const res = await fetch(url, { cache: "no-store" });
+//     if(!res.ok) throw new Error("Network response not OK");
+//     const data = await res.json();
+//     const text = "Unknown";
+//     alert("Quote of the moment" + text);
+//   } catch (err) {
+//     console.warn("Quotable fetch failed:", err);
+//   }
+// })();
+// </script>`
+// }
 
 function generateHtml(title, bodyText, scripts) {
     return `
@@ -281,24 +281,7 @@ function path_rule(r) {
     } else if (r.uri === "/output-body") {
         const args = r.args || {};
         const sizeParam = args.size ? parseInt(args.size, 10) : 0;
-
-        r.headersOut['Content-Type'] = 'text/plain';
         r.return(200, "A".repeat(sizeParam));
-    } else if (r.uri === "/output-headers-safe") {
-        const args = r.args || {};
-        const sizeParam = args.size ? parseInt(args.size, 10) : 0;
-
-        let cookies = [];
-
-        const chunkSize = 1024; // deliberately small
-        const count = Math.ceil(sizeParam / chunkSize);
-
-        for (let i = 0; i < count; i++) {
-            cookies.push(`c${i}=${"A".repeat(chunkSize)}; Path=/`);
-        }
-
-        r.headersOut['Set-Cookie'] = cookies;
-        r.return(200, "OK");
     } else {
         return iframe_rule(r); // Delegate to iRule-style handler if matched
     }
@@ -574,13 +557,13 @@ async function hash(r) {
 
 export default {
     summary,
-    echo_body,
-    echo_headers,
-    echo_cookies,
-    waf_body,
-    waf_headers,
-    waf_cookies,
-    waf_reflect,
+    // echo_body,
+    // echo_headers,
+    // echo_cookies,
+    // waf_body,
+    // waf_headers,
+    // waf_cookies,
+    // waf_reflect,
     hash, 
     path_rule, 
     generateHtml, 
