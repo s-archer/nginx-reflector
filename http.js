@@ -28,6 +28,7 @@ function summary(r) {
 
 function redirect(r) {
     r.headersOut['Location'] = `https://reflect.archf5.com/redirected`;
+    r.log("Returning response for URI: " + r.uri);
     r.return(302);
 }
 
@@ -281,12 +282,14 @@ function path_rule(r) {
     } else if (r.uri === "/output-body") {
         const args = r.args || {};
         const sizeParam = args.size ? parseInt(args.size, 10) : 0;
+        r.log("Returning response for URI: " + r.uri);
         r.return(200, "A".repeat(sizeParam));
     } else {
         return iframe_rule(r); // Delegate to iRule-style handler if matched
     }
 
     r.headersOut['Content-Type'] = 'text/html';
+    r.log("Returning response for URI: " + r.uri);
     r.return(200, generateHtml(title, bodyText, scripts));
 }
 
@@ -351,6 +354,7 @@ function iframe_rule(r) {
             <script src="https://test-only-webbug.reflect.f5xc.co.uk/offdomain.js"></script>
             <script src="https://reflect.archf5.com/ondomain.js"></script>
             </body></html>`;
+        r.log("Returning response for URI: " + r.uri);
         r.return(200, html);
         return;
     }
@@ -364,30 +368,35 @@ function iframe_rule(r) {
             <h1>Framebuster failed</h1>
             <script src="https://test-only.reflect.demof5.net/framebust.js"></script>
             </body></html>`;
+        r.log("Returning response for URI: " + r.uri);
         r.return(200, html);
         return;
     }
 
     if (path === "/iframe-http.html") {
         setCommonHeaders(r);
+        r.log("Returning response for URI: " + r.uri);
         r.return(200, `<html><body style="background-color:#999966"><h1>Cross-domain HTTP iframe.</h1></body></html>`);
         return;
     }
 
     if (path === "/iframe-https.html") {
         setCommonHeaders(r);
+        r.log("Returning response for URI: " + r.uri);
         r.return(200, `<html><body style="background-color:#F5DEB3"><h1>Cross-domain HTTPS iframe.</h1></body></html>`);
         return;
     }
 
     if (path === "/iframe-sandbox-https.html") {
         setCommonHeaders(r);
+        r.log("Returning response for URI: " + r.uri);
         r.return(200, `<html><body style="background-color:#15DEB3"><h1>Fully sandboxed HTTPS iframe.</h1><h1>Script Blocked.</h1><script src="https://reflect.archf5.com/sandbox-check.js"></script></body></html>`);
         return;
     }
 
     if (path === "/xframes/xframe-https.html") {
         setCommonHeaders(r);
+        r.log("Returning response for URI: " + r.uri);
         r.return(200, `<html><body style="background-color:#A5DEB3"><h1>Cross-domain HTTPS iframe. X-Frame-Options not supported if visible.</h1></body></html>`);
         return;
     }
@@ -396,6 +405,7 @@ function iframe_rule(r) {
     if (path === "/framebust.js") {
         setCommonHeaders(r);
         r.headersOut['Content-Type'] = 'application/javascript';
+        r.log("Returning response for URI: " + r.uri);
         r.return(200, `
             if (self === top) {
             var antiClickjack = document.getElementById("antiClickjack");
@@ -407,6 +417,7 @@ function iframe_rule(r) {
     if (path === "/offdomain.js") {
         setCommonHeaders(r);
         r.headersOut['Content-Type'] = 'application/javascript';
+        r.log("Returning response for URI: " + r.uri);
         r.return(200, `document.write('<img src="https://test-only-webbug.reflect.f5xc.co.uk/script-offdomain.jpg" width="120" height="120"></img>')`);
         return;
     }
@@ -414,6 +425,7 @@ function iframe_rule(r) {
     if (path === "/ondomain.js") {
         setCommonHeaders(r);
         r.headersOut['Content-Type'] = 'application/javascript';
+        r.log("Returning response for URI: " + r.uri);
         r.return(200, `document.write('<img src="https://test-only-webbug.reflect.archf5.com/script-ondomain.jpg" width="120" height="120"></img>')`);
         return;
     }
@@ -421,6 +433,7 @@ function iframe_rule(r) {
     if (path === "/sandbox-check.js") {
         setCommonHeaders(r);
         r.headersOut['Content-Type'] = 'application/javascript';
+        r.log("Returning response for URI: " + r.uri);
         r.return(200, `document.write('<img src="https://test-only-webbug.reflect.f5xc.co.uk/sandbox-check.jpg" width="120" height="120"></img>')`);
         return;
     }
@@ -435,6 +448,7 @@ function iframe_rule(r) {
     // }
 
     // Default
+    r.log("Returning response for URI: " + r.uri);
     r.return(404, "Not found");
 }
 
