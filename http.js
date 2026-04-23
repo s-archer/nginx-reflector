@@ -173,17 +173,21 @@ function path_rule(r) {
             'other-cookie=value-xyz'
         ];
 
-        if (sizeParam && sizeParam > 0) {
-            const chunkSize = 2048; // 2KB per cookie (safe for njs)
-            const numCookies = Math.ceil(sizeParam / chunkSize);
+        // if (sizeParam && sizeParam > 0) {
+        //     const chunkSize = 2048; // 2KB per cookie (safe for njs)
+        //     const numCookies = Math.ceil(sizeParam / chunkSize);
 
-            for (let i = 0; i < numCookies; i++) {
-                const thisSize = Math.min(chunkSize, sizeParam - (i * chunkSize));
-                // const value = "A".repeat(thisSize);
-                // cookies.push(`chunk-${i}=${value}; Path=/output-headers`);
-                const value = buildValue(thisSize);
-                cookies.push(`chunk-${i}=${value}; Path=/`);
-            }
+        //     for (let i = 0; i < numCookies; i++) {
+        //         const thisSize = Math.min(chunkSize, sizeParam - (i * chunkSize));
+        //         // const value = "A".repeat(thisSize);
+        //         // cookies.push(`chunk-${i}=${value}; Path=/output-headers`);
+        //         const value = buildValue(thisSize);
+        //         cookies.push(`chunk-${i}=${value}; Path=/`);
+        //     }
+        // }
+        if (sizeParam && sizeParam > 0) {
+            const value = buildValue(sizeParam);
+            cookies.push(`oversized-cookie=${value}; Path=/`);
         }
 
         r.headersOut['Set-Cookie'] = cookies;
