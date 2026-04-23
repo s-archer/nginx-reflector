@@ -461,116 +461,116 @@ async function hash(r) {
     r.setReturnValue(Buffer.from(hash).toString('hex'));
 }
 
-// =========================
-// BODY TESTS
-// =========================
+// // =========================
+// // BODY TESTS
+// // =========================
 
-function echo_body(r) {
-    const args = r.args || {};
-    const size = parseInt(args.size || "0", 10);
+// function echo_body(r) {
+//     const args = r.args || {};
+//     const size = parseInt(args.size || "0", 10);
 
-    r.headersOut['Content-Type'] = 'text/plain';
-    r.return(200, "A".repeat(size));
-}
+//     r.headersOut['Content-Type'] = 'text/plain';
+//     r.return(200, "A".repeat(size));
+// }
 
-// =========================
-// HEADER TESTS
-// =========================
+// // =========================
+// // HEADER TESTS
+// // =========================
 
-function echo_headers(r) {
-    const args = r.args || {};
-    const size = parseInt(args.size || "0", 10);
+// function echo_headers(r) {
+//     const args = r.args || {};
+//     const size = parseInt(args.size || "0", 10);
 
-    r.headersOut['X-Test-Size'] = String(size);
+//     r.headersOut['X-Test-Size'] = String(size);
 
-    let headers = [];
-    const chunk = "A".repeat(1024);
-    const count = Math.ceil(size / 1024);
+//     let headers = [];
+//     const chunk = "A".repeat(1024);
+//     const count = Math.ceil(size / 1024);
 
-    for (let i = 0; i < count; i++) {
-        r.headersOut["X-C" + i] = chunk;
-        headers.push("X-C" + i);
-    }
+//     for (let i = 0; i < count; i++) {
+//         r.headersOut["X-C" + i] = chunk;
+//         headers.push("X-C" + i);
+//     }
 
-    r.return(200, JSON.stringify({
-        generated_headers: headers.length
-    }));
-}
+//     r.return(200, JSON.stringify({
+//         generated_headers: headers.length
+//     }));
+// }
 
-// =========================
-// COOKIE TESTS
-// =========================
+// // =========================
+// // COOKIE TESTS
+// // =========================
 
-function echo_cookies(r) {
-    const args = r.args || {};
-    const size = parseInt(args.size || "0", 10);
+// function echo_cookies(r) {
+//     const args = r.args || {};
+//     const size = parseInt(args.size || "0", 10);
 
-    let cookies = [];
-    const chunk = "A".repeat(1024);
-    const count = Math.ceil(size / 1024);
+//     let cookies = [];
+//     const chunk = "A".repeat(1024);
+//     const count = Math.ceil(size / 1024);
 
-    for (let i = 0; i < count; i++) {
-        cookies.push(`c${i}=${chunk}; Path=/`);
-    }
+//     for (let i = 0; i < count; i++) {
+//         cookies.push(`c${i}=${chunk}; Path=/`);
+//     }
 
-    r.headersOut['Set-Cookie'] = cookies;
+//     r.headersOut['Set-Cookie'] = cookies;
 
-    r.return(200, JSON.stringify({
-        cookies: cookies.length
-    }));
-}
+//     r.return(200, JSON.stringify({
+//         cookies: cookies.length
+//     }));
+// }
 
-// =========================
-// WAF TEST ENDPOINTS
-// =========================
+// // =========================
+// // WAF TEST ENDPOINTS
+// // =========================
 
-function waf_body(r) {
-    const size = parseInt((r.args || {}).size || "0", 10);
-    const attack = (r.args || {}).attack === "1";
+// function waf_body(r) {
+//     const size = parseInt((r.args || {}).size || "0", 10);
+//     const attack = (r.args || {}).attack === "1";
 
-    const payload = attack
-        ? "<script>alert('xss')</script>"
-        : "";
+//     const payload = attack
+//         ? "<script>alert('xss')</script>"
+//         : "";
 
-    const base = Math.max(0, size - payload.length);
+//     const base = Math.max(0, size - payload.length);
 
-    r.headersOut['Content-Type'] = 'text/plain';
-    r.return(200, "A".repeat(base) + payload);
-}
+//     r.headersOut['Content-Type'] = 'text/plain';
+//     r.return(200, "A".repeat(base) + payload);
+// }
 
-function waf_headers(r) {
-    const attack = (r.args || {}).attack === "1";
+// function waf_headers(r) {
+//     const attack = (r.args || {}).attack === "1";
 
-    if (attack) {
-        r.headersOut["X-Test"] = "<script>alert('xss')</script>";
-    } else {
-        r.headersOut["X-Test"] = "safe";
-    }
+//     if (attack) {
+//         r.headersOut["X-Test"] = "<script>alert('xss')</script>";
+//     } else {
+//         r.headersOut["X-Test"] = "safe";
+//     }
 
-    r.return(200, "OK");
-}
+//     r.return(200, "OK");
+// }
 
-function waf_cookies(r) {
-    const attack = (r.args || {}).attack === "1";
+// function waf_cookies(r) {
+//     const attack = (r.args || {}).attack === "1";
 
-    if (attack) {
-        r.headersOut['Set-Cookie'] =
-            "test=<script>alert('xss')</script>; Path=/";
-    } else {
-        r.headersOut['Set-Cookie'] =
-            "test=safe; Path=/";
-    }
+//     if (attack) {
+//         r.headersOut['Set-Cookie'] =
+//             "test=<script>alert('xss')</script>; Path=/";
+//     } else {
+//         r.headersOut['Set-Cookie'] =
+//             "test=safe; Path=/";
+//     }
 
-    r.return(200, "OK");
-}
+//     r.return(200, "OK");
+// }
 
-function waf_reflect(r) {
-    const attack = (r.args || {}).attack === "1"
-        ? "<script>alert('xss')</script>"
-        : "safe";
+// function waf_reflect(r) {
+//     const attack = (r.args || {}).attack === "1"
+//         ? "<script>alert('xss')</script>"
+//         : "safe";
 
-    r.return(200, attack);
-}
+//     r.return(200, attack);
+// }
 
 export default {
     summary,
