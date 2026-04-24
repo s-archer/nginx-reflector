@@ -9,6 +9,12 @@ const WAITING_ROOM_TARGET_PREFIX = "/queue-demo";
 const WAITING_ROOM_ACTIVE_SLOTS = 1;
 const WAITING_ROOM_ADMIT_TTL_MS = 2 * 60 * 1000;
 const WAITING_ROOM_STALE_MS = 10 * 60 * 1000;
+const COMMON_RESPONSE_HEADERS = [
+    { name: "Strict-Transport-Security", value: "max-age=31536000" },
+    { name: "Expires", value: "Mon, 1 Jan 2001 00:00:00 GMT" },
+    { name: "Cache-Control", value: "no-cache, no-store, must-revalidate" },
+    { name: "Pragma", value: "no-cache" }
+];
 const waitingRoomState = {
     entries: {},
     queue: []
@@ -382,6 +388,51 @@ function generateHtml(title, bodyText, scripts) {
     `;
 }
 
+function headerWireBytes(name, value) {
+    return Buffer.byteLength(name + ": " + value + "\r\n");
+}
+
+function responseHeaderBytes(headers) {
+    return headers.reduce(function (sum, header) {
+        return sum + headerWireBytes(header.name, header.value);
+    }, 0);
+}
+
+function cacheIt(r) {
+    const match = r.uri.match(/^\/cache-it\/([1-9][0-9]*)$/);
+
+    if (!match) {
+        r.headersOut["Content-Type"] = "text/plain";
+        r.return(400, "Use /cache-it/<positive-integer-byte-size>");
+        return;
+    }
+
+    const requestedSize = parseInt(match[1], 10);
+    const body = generateHtml(
+        "Cache Header Padding",
+        "This page includes the usual response headers plus a header called <code>x-cache-padding</code>. The value of that header is sized so the total bytes of the controlled response headers equals " + requestedSize + " bytes.",
+        ""
+    );
+    const usualHeaders = [{ name: "Content-Type", value: "text/html" }].concat(COMMON_RESPONSE_HEADERS);
+    const paddingHeaderName = "x-cache-padding";
+    const baseSize = responseHeaderBytes(usualHeaders) + headerWireBytes(paddingHeaderName, "");
+    const paddingSize = requestedSize - baseSize;
+
+    if (paddingSize < 0) {
+        r.headersOut["Content-Type"] = "text/plain";
+        r.return(400, "requested header size is too small; minimum is " + baseSize + " bytes");
+        return;
+    }
+
+    usualHeaders.forEach(function (header) {
+        r.headersOut[header.name] = header.value;
+    });
+    r.headersOut[paddingHeaderName] = "A".repeat(paddingSize);
+
+    r.log("Returning cache-it response for URI: " + r.uri + " with controlled header bytes: " + requestedSize);
+    r.return(200, body);
+}
+
 // ----------------- Existing path rules -----------------
 function path_rule(r) {
     let title, bodyText, scripts;
@@ -488,10 +539,9 @@ function path_rule(r) {
 
 // ----------------- iRule-like Test Page Handler -----------------
 function setCommonHeaders(r) {
-    r.headersOut['Strict-Transport-Security'] = 'max-age=31536000';
-    r.headersOut['Expires'] = 'Mon, 1 Jan 2001 00:00:00 GMT';
-    r.headersOut['Cache-Control'] = 'no-cache, no-store, must-revalidate';
-    r.headersOut['Pragma'] = 'no-cache';
+    COMMON_RESPONSE_HEADERS.forEach(function (header) {
+        r.headersOut[header.name] = header.value;
+    });
 }
 
 // Small transparent pixel for placeholders
@@ -768,6 +818,7 @@ export default {
     queueLeave,
     queueDemo,
     queueLeavePage,
+    cacheIt,
     // echo_body,
     // echo_headers,
     // echo_cookies,
