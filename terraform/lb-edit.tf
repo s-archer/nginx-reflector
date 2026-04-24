@@ -32,40 +32,10 @@ resource "volterra_http_loadbalancer" "nginx-reflector" {
   }
 
   routes {
-    direct_response_route {
-      http_method = "ANY"
-
-      path {
-        prefix = "/queue-demo"
-      }
-
-      headers {
-        name         = "Cookie"
-        regex        = ".*wr_admit=.*"
-        invert_match = true
-      }
-
-      route_direct_response {
-        response_code = 200
-        response_body = <<-HTML
-<!DOCTYPE html>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>F5 Waiting Room</title>
-<style>
-body{margin:0;font:16px/1.5 Arial,sans-serif;background:#f6f1e8;color:#171717;display:grid;place-items:center;min-height:100vh}
-.c{width:min(680px,92vw);padding:28px;border:1px solid #ddd;background:#fff;box-shadow:0 20px 60px rgba(0,0,0,.12);border-radius:24px}
-.b{font:700 12px/1 Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#e4002b}
-h1{margin:.5rem 0 1rem;font-size:clamp(2rem,5vw,3.2rem);line-height:.95}
-.g{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}
-.k{border:1px solid #e7e2d8;border-radius:16px;padding:14px;background:#faf7f1}.l{font-size:11px;text-transform:uppercase;color:#666;letter-spacing:.08em}.v{font-size:28px;font-weight:700}
-#s{padding:14px;border-radius:16px;background:#1c1c1c;color:#fff}
-</style>
-<main class=c><div class=b>F5 Waiting Room</div><h1>Please hold while we admit visitors in turn.</h1><p>Keep this tab open and we will redirect you automatically when your slot is available.</p><div class=g><div class=k><div class=l>Position</div><div class=v id=p>-</div></div><div class=k><div class=l>Slots</div><div class=v id=a>-</div></div><div class=k><div class=l>Depth</div><div class=v id=d>-</div></div></div><div id=s>Contacting the queue service...</div></main>
-<script>
-const t=location.pathname+location.search,p=document.getElementById("p"),a=document.getElementById("a"),d=document.getElementById("d"),s=document.getElementById("s");
-async function q(){try{const r=await fetch("/queue/api/status?target="+encodeURIComponent(t),{credentials:"include",cache:"no-store"});if(!r.ok)throw new Error(r.status);const j=await r.json();a.textContent=j.active_slots??"-";if(j.admitted){p.textContent=0;d.textContent=0;s.textContent="Your slot is ready. Redirecting now...";location.replace(j.target||t);return}p.textContent=j.position??"-";d.textContent=j.queue_depth??"-";s.textContent="You are still in the waiting room. We will refresh your place automatically."}catch(e){s.textContent="We could not refresh your queue status. Retrying..."}setTimeout(q,3000)}q();
-</script>
-HTML
+    custom_route_object {
+      route_ref {
+        name      = volterra_route.waiting-room-route-tf.name
+        namespace = var.xc_namespace
       }
     }
   }
@@ -150,6 +120,57 @@ resource "volterra_route" "query-match-route-tf" {
     response_headers_to_add {
       name   = "Content-Type"
       value  = "text/html"
+      append = false
+    }
+  }
+}
+
+resource "volterra_route" "waiting-room-route-tf" {
+  name      = "waiting-room-route-tf"
+  namespace = var.xc_namespace
+
+  routes {
+    match {
+      http_method = "ANY"
+      path {
+        prefix = "/queue-demo"
+      }
+      headers {
+        name         = "Cookie"
+        regex        = ".*wr_admit=.*"
+        invert_match = true
+      }
+    }
+    route_direct_response {
+      response_code = "200"
+      response_body = <<-HTML
+<!DOCTYPE html>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>F5 Waiting Room</title>
+<style>
+body{margin:0;font:16px/1.5 Arial,sans-serif;background:#f6f1e8;color:#171717;display:grid;place-items:center;min-height:100vh}
+.c{width:min(680px,92vw);padding:28px;border:1px solid #ddd;background:#fff;box-shadow:0 20px 60px rgba(0,0,0,.12);border-radius:24px}
+.b{font:700 12px/1 Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#e4002b}
+h1{margin:.5rem 0 1rem;font-size:clamp(2rem,5vw,3.2rem);line-height:.95}
+.g{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}
+.k{border:1px solid #e7e2d8;border-radius:16px;padding:14px;background:#faf7f1}.l{font-size:11px;text-transform:uppercase;color:#666;letter-spacing:.08em}.v{font-size:28px;font-weight:700}
+#s{padding:14px;border-radius:16px;background:#1c1c1c;color:#fff}
+</style>
+<main class=c><div class=b>F5 Waiting Room</div><h1>Please hold while we admit visitors in turn.</h1><p>Keep this tab open and we will redirect you automatically when your slot is available.</p><div class=g><div class=k><div class=l>Position</div><div class=v id=p>-</div></div><div class=k><div class=l>Slots</div><div class=v id=a>-</div></div><div class=k><div class=l>Depth</div><div class=v id=d>-</div></div></div><div id=s>Contacting the queue service...</div></main>
+<script>
+const t=location.pathname+location.search,p=document.getElementById("p"),a=document.getElementById("a"),d=document.getElementById("d"),s=document.getElementById("s");
+async function q(){try{const r=await fetch("/queue/api/status?target="+encodeURIComponent(t),{credentials:"include",cache:"no-store"});if(!r.ok)throw new Error(r.status);const j=await r.json();a.textContent=j.active_slots??"-";if(j.admitted){p.textContent=0;d.textContent=0;s.textContent="Your slot is ready. Redirecting now...";location.replace(j.target||t);return}p.textContent=j.position??"-";d.textContent=j.queue_depth??"-";s.textContent="You are still in the waiting room. We will refresh your place automatically."}catch(e){s.textContent="We could not refresh your queue status. Retrying..."}setTimeout(q,3000)}q();
+</script>
+HTML
+    }
+    response_headers_to_add {
+      name   = "Content-Type"
+      value  = "text/html; charset=UTF-8"
+      append = false
+    }
+    response_headers_to_add {
+      name   = "Cache-Control"
+      value  = "no-store"
       append = false
     }
   }
