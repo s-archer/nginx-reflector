@@ -43,7 +43,18 @@ function parseCookies(r) {
 }
 
 function appendSetCookie(r, value) {
-    r.headersOut["Set-Cookie"] = value;
+    const existing = r.headersOut["Set-Cookie"];
+    if (!existing) {
+        r.headersOut["Set-Cookie"] = [value];
+        return;
+    }
+
+    if (Array.isArray(existing)) {
+        r.headersOut["Set-Cookie"] = existing.concat(value);
+        return;
+    }
+
+    r.headersOut["Set-Cookie"] = [existing, value];
 }
 
 function setCookie(r, name, value, maxAgeSeconds) {
