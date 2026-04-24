@@ -46,3 +46,9 @@ variable "xc_deployment_name" {
   description = "XC container deployment name"
   default     = "nginx-reflector"
 }
+
+variable "xc_container_image" {
+  type        = string
+  description = "Container image reference for the vk8s deployment."
+  default     = "ghcr.io/s-archer/nginx-reflector:main"
+}

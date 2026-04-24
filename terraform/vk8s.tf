@@ -1,6 +1,6 @@
 resource "kubernetes_deployment_v1" "nginx-reflector" {
   metadata {
-    name = var.xc_deployment_name
+    name      = var.xc_deployment_name
     namespace = var.xc_namespace
     annotations = {
       "ves.io/workload-flavor" = "arch-custom"
@@ -14,7 +14,7 @@ resource "kubernetes_deployment_v1" "nginx-reflector" {
         app = var.xc_deployment_name
       }
     }
-    template  {
+    template {
       metadata {
         labels = {
           app = var.xc_deployment_name
@@ -22,20 +22,20 @@ resource "kubernetes_deployment_v1" "nginx-reflector" {
       }
       spec {
         container {
-          image = "ghcr.io/s-archer/nginx-reflector:main"
+          image             = var.xc_container_image
           image_pull_policy = "Always"
-          name = var.xc_deployment_name
+          name              = var.xc_deployment_name
           port {
             container_port = 8080
-            protocol = "TCP"
+            protocol       = "TCP"
           }
           volume_mount {
-              mount_path = "/var/run"
-              name = "nginx-run"
+            mount_path = "/var/run"
+            name       = "nginx-run"
           }
           volume_mount {
             mount_path = "/var/cache/nginx"
-            name = "nginx-cache"
+            name       = "nginx-cache"
           }
         }
         volume {
@@ -57,7 +57,7 @@ resource "kubernetes_deployment_v1" "nginx-reflector" {
 
 resource "kubernetes_service_v1" "nginx-reflector" {
   metadata {
-    name = "nginx-reflector"
+    name      = "nginx-reflector"
     namespace = var.xc_namespace
   }
   spec {

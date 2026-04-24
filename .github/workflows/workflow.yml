@@ -12,6 +12,8 @@ env:
 jobs:
 
   buildjob:
+    outputs:
+      image_ref: ${{ steps.image_ref.outputs.value }}
 
     runs-on: ubuntu-latest
 
@@ -34,12 +36,17 @@ jobs:
         images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
     - name: Build and push Docker image
+      id: build_push
       uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
       with:
         context: .
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
+
+    - name: Export immutable image reference
+      id: image_ref
+      run: echo "value=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build_push.outputs.digest }}" >> "$GITHUB_OUTPUT"
 
   deployjob:
 
@@ -85,4 +92,5 @@ jobs:
         run: terraform apply -auto-approve -no-color -input=false 
         env:
           VES_P12_PASSWORD: ${{ secrets.VES_P12_PASSWORD }}
+          TF_VAR_xc_container_image: ${{ needs.buildjob.outputs.image_ref }}
           # TF_LOG: debug 
