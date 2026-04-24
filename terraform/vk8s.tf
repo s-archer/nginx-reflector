@@ -9,6 +9,9 @@ resource "kubernetes_deployment_v1" "nginx-reflector" {
 
   spec {
     replicas = 1
+    strategy {
+      type = "Recreate"
+    }
     selector {
       match_labels = {
         app = var.xc_deployment_name

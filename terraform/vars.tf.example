@@ -39,3 +39,15 @@ variable "xc_api_p12_file" {
   description = "XC protected vertificate file"
   default     = "my-p12-file.p12"
 }
+
+variable "xc_deployment_name" {
+  type        = string
+  description = "XC container deployment name"
+  default     = "nginx-reflector"
+}
+
+variable "xc_container_image" {
+  type        = string
+  description = "Container image reference for the vk8s deployment."
+  default     = "ghcr.io/s-archer/nginx-reflector:main"
+}
