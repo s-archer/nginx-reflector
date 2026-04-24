@@ -127,155 +127,76 @@ function path_rule(r) {
         bodyText = "You have been redirected here.";
     } else if (r.uri === "/output-headers" || r.uri === "/waf-bypass") {
 
-        // --- Parse query parameters ---
         const args = r.args || {};
         const sizeParam = args.size ? parseInt(args.size, 10) : null;
-
         const includeAttack =
             args["include-attack"] === "true" ||
             args.include_attack === "true" ||
             args["attack-enable"] === "true" ||
             args.attack_enable === "true";
-
-        // NEW: position param (default = "end")
         const position = args.position === "start" ? "start" : "end";
+        const includeFixedCookies = args["fixed-cookies"] !== "false";
+        const attack = "<script>alert('xss')</script>";
 
-        // --- Default cookie value ---
+        function headerWireBytes(name, value) {
+            return Buffer.byteLength(name + ": " + value + "\r\n");
+        }
 
-        let attack = includeAttack ? "<script>alert('xss')</script>" : "";
-
-        function buildValue(size) {
-            const base = size - attack.length;
-
-            if (base <= 0) return "small";
-
-            const filler = "A".repeat(base);
-
-            if (!includeAttack) return filler;
-
-            if (position === "start") {
-                return attack + filler;
-            } else {
-                return filler + attack;
+        function buildValueExact(size, attackText, shouldIncludeAttack, attackPosition) {
+            if (!Number.isInteger(size) || size < 1) {
+                return null;
             }
+
+            if (!shouldIncludeAttack) {
+                return "A".repeat(size);
+            }
+
+            const attackBytes = Buffer.byteLength(attackText);
+            if (size < attackBytes) {
+                return null;
+            }
+
+            const filler = "A".repeat(size - attackBytes);
+            return attackPosition === "start" ? attackText + filler : filler + attackText;
         }
 
-        // --- Set cookies ---
-        // r.headersOut['Set-Cookie'] = [
-        //     'weak-cookie=weakphrase; Path=/output-headers',
-        //     'other-cookie=value-xyz',
-        //     `oversized-cookie=${oversizedValue}; Path=/output-headers`
-        // ];
-
-        let cookies = [
-            'weak-cookie=weakphrase; Path=/',
-            'other-cookie=value-xyz'
-        ];
-
-        // if (sizeParam && sizeParam > 0) {
-        //     const chunkSize = 2048; // 2KB per cookie (safe for njs)
-        //     const numCookies = Math.ceil(sizeParam / chunkSize);
-
-        //     for (let i = 0; i < numCookies; i++) {
-        //         const thisSize = Math.min(chunkSize, sizeParam - (i * chunkSize));
-        //         // const value = "A".repeat(thisSize);
-        //         // cookies.push(`chunk-${i}=${value}; Path=/output-headers`);
-        //         const value = buildValue(thisSize);
-        //         cookies.push(`chunk-${i}=${value}; Path=/`);
-        //     }
-        // }
-        if (sizeParam && sizeParam > 0) {
-            const value = buildValue(sizeParam);
-            cookies.push(`oversized-cookie=${value}; Path=/`);
+        const cookies = [];
+        if (includeFixedCookies) {
+            cookies.push("weak-cookie=weakphrase; Path=/");
+            cookies.push("other-cookie=value-xyz");
         }
 
-        // r.headersOut['Set-Cookie'] = cookies;
-        cookies.forEach(c => r.headersOut['Set-Cookie'] = c);
-
-
-
-        title = "Output Headers Page";
-        bodyText = "Welcome to the Output Headers Page! Use a query parameter to set the size (bytes) of an 'oversized-cookie' (e.g. /output-headers?size=4000). ";
-        bodyText += "Use /output-headers?include-attack=true to include an attack string at the end of the cookie.</p>";
-
-        bodyText += `
-        <style>
-        .wrap {
-            word-break: break-all;
-            overflow-wrap: anywhere;
-            white-space: pre-wrap;
-            font-family: monospace;
-        }
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin: 1rem 0 2rem 0;
-        }
-        th, td {
-            border: 1px solid #ccc;
-            padding: 8px;
-            text-align: left;
-            vertical-align: top;
-        }
-        th {
-            background: #f5f5f5;
-        }
-        .bytes {
-            white-space: nowrap;
-            font-family: monospace;
-        }
-        </style>
-        `;
-
-        function escapeHtml(str) {
-            return String(str)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
+        let oversizedValue = "";
+        if (sizeParam !== null) {
+            oversizedValue = buildValueExact(sizeParam, attack, includeAttack, position);
+            if (oversizedValue === null) {
+                r.headersOut["Content-Type"] = "text/plain";
+                r.return(400, "invalid size");
+                return;
+            }
+            cookies.push(`oversized-cookie=${oversizedValue}; Path=/`);
         }
 
-        function byteSize(str) {
-            return Buffer.byteLength(String(str));
-        }
+        cookies.forEach(c => r.headersOut["Set-Cookie"] = c);
 
-        function renderHeaderTable(titleText, headers) {
-            let html = `<h2>${escapeHtml(titleText)}</h2>`;
-            html += `
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Size (bytes)</th>
-                            <th>Content</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
+        const oversizedCookieLine = cookies.length > 0 ? cookies[cookies.length - 1] : "";
+        const totalSetCookieBytes = cookies.reduce(
+            (sum, cookie) => sum + headerWireBytes("Set-Cookie", cookie),
+            0
+        );
 
-            headers.forEach(function (pair) {
-                var name = pair[0];
-                var value = pair[1];
-
-                html += '<tr>' +
-                    '<td class="wrap">' + escapeHtml(name) + '</td>' +
-                    '<td class="bytes">' + byteSize(value) + '</td>' +
-                    '<td class="wrap">' + escapeHtml(value) + '</td>' +
-                '</tr>';
-            });
-
-            html += `
-                    </tbody>
-                </table>
-            `;
-            return html;
-        }
-
-        bodyText += renderHeaderTable("Request Headers", r.rawHeadersIn);
-        // bodyText += renderHeaderTable("Response Headers", r.rawHeadersOut);
-
-
+        r.headersOut["X-Test-Fixed-Cookies"] = includeFixedCookies ? "true" : "false";
+        r.headersOut["X-Test-Attack-Included"] = includeAttack ? "true" : "false";
+        r.headersOut["X-Test-Attack-Position"] = includeAttack ? position : "none";
+        r.headersOut["X-Test-Cookie-Value-Bytes"] = String(Buffer.byteLength(oversizedValue));
+        r.headersOut["X-Test-Oversized-Set-Cookie-Bytes"] = oversizedCookieLine
+            ? String(headerWireBytes("Set-Cookie", oversizedCookieLine))
+            : "0";
+        r.headersOut["X-Test-Total-Set-Cookie-Bytes"] = String(totalSetCookieBytes);
+        r.headersOut["Content-Type"] = "text/plain";
+        r.log("Returning response for URI: " + r.uri);
+        r.return(200, "Welcome to the Output Headers Page!");
+        return;
     } else if (r.uri === "/summary") {
         title = "Summary of Headers Received";
         bodyText = summary(r);
