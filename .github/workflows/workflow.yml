@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: nginx-reflector-${{ github.ref }}
+  cancel-in-progress: false
+
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
@@ -89,7 +93,7 @@ jobs:
       - name: Terraform Apply
         id: apply1
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform apply -auto-approve -no-color -input=false 
+        run: terraform apply -auto-approve -no-color -input=false -lock-timeout=5m
         env:
           VES_P12_PASSWORD: ${{ secrets.VES_P12_PASSWORD }}
           TF_VAR_xc_container_image: ${{ needs.buildjob.outputs.image_ref }}

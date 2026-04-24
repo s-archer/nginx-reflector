@@ -1,4 +1,6 @@
 resource "kubernetes_deployment_v1" "nginx-reflector" {
+  wait_for_rollout = false
+
   metadata {
     name      = var.xc_deployment_name
     namespace = var.xc_namespace
