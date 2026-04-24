@@ -223,7 +223,7 @@ function queueStatus(r) {
 
 function queueLeave(r) {
     const cookies = parseCookies(r);
-    const clientId = cookies[WAITING_ROOM_ID_COOKIE];
+    const clientId = cookies[WAITING_ROOM_ID_COOKIE] || cookies[WAITING_ROOM_ADMIT_COOKIE];
 
     if (clientId) {
         removeEntry(clientId);
@@ -240,11 +240,11 @@ function queueDemo(r) {
     cleanupWaitingRoom();
 
     const cookies = parseCookies(r);
-    const clientId = cookies[WAITING_ROOM_ID_COOKIE];
+    const clientId = cookies[WAITING_ROOM_ID_COOKIE] || cookies[WAITING_ROOM_ADMIT_COOKIE];
     const admitCookie = cookies[WAITING_ROOM_ADMIT_COOKIE];
     const entry = clientId ? waitingRoomState.entries[clientId] : null;
 
-    if (!clientId || !admitCookie || admitCookie !== clientId || !entry || !entry.admittedUntil || entry.admittedUntil <= nowMs()) {
+    if (!admitCookie || !clientId || admitCookie !== clientId || !entry || !entry.admittedUntil || entry.admittedUntil <= nowMs()) {
         clearCookie(r, WAITING_ROOM_ADMIT_COOKIE);
         r.headersOut["Location"] = WAITING_ROOM_TARGET_PREFIX;
         r.return(302, "");
