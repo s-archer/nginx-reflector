@@ -3,6 +3,265 @@
 //
 // r is the request object provided by NGINX.
 
+const WAITING_ROOM_ID_COOKIE = "wr_id";
+const WAITING_ROOM_ADMIT_COOKIE = "wr_admit";
+const WAITING_ROOM_TARGET_PREFIX = "/queue-demo";
+const WAITING_ROOM_ACTIVE_SLOTS = 1;
+const WAITING_ROOM_ADMIT_TTL_MS = 2 * 60 * 1000;
+const WAITING_ROOM_STALE_MS = 10 * 60 * 1000;
+const waitingRoomState = {
+    entries: {},
+    queue: []
+};
+
+function nowMs() {
+    return Date.now();
+}
+
+function parseCookies(r) {
+    const cookieHeader = r.headersIn.Cookie || r.headersIn.cookie || "";
+    const result = {};
+
+    cookieHeader.split(";").forEach(function (part) {
+        const trimmed = part.trim();
+        if (!trimmed) {
+            return;
+        }
+
+        const eq = trimmed.indexOf("=");
+        if (eq === -1) {
+            result[trimmed] = "";
+            return;
+        }
+
+        const name = trimmed.slice(0, eq).trim();
+        const value = trimmed.slice(eq + 1).trim();
+        result[name] = decodeURIComponent(value);
+    });
+
+    return result;
+}
+
+function appendSetCookie(r, value) {
+    r.headersOut["Set-Cookie"] = value;
+}
+
+function setCookie(r, name, value, maxAgeSeconds) {
+    let cookie = `${name}=${encodeURIComponent(value)}; Path=/; SameSite=Lax; Secure`;
+    if (maxAgeSeconds !== undefined && maxAgeSeconds !== null) {
+        cookie += `; Max-Age=${maxAgeSeconds}`;
+    }
+    if (name === WAITING_ROOM_ADMIT_COOKIE) {
+        cookie += "; HttpOnly";
+    }
+    appendSetCookie(r, cookie);
+}
+
+function clearCookie(r, name) {
+    appendSetCookie(r, `${name}=; Path=/; Max-Age=0; SameSite=Lax; Secure`);
+}
+
+function createClientId() {
+    return `wr-${nowMs().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function normaliseTarget(target) {
+    if (!target || target.indexOf(WAITING_ROOM_TARGET_PREFIX) !== 0) {
+        return WAITING_ROOM_TARGET_PREFIX;
+    }
+    return target;
+}
+
+function queuePosition(id) {
+    const index = waitingRoomState.queue.indexOf(id);
+    return index === -1 ? 0 : index + 1;
+}
+
+function removeFromQueue(id) {
+    waitingRoomState.queue = waitingRoomState.queue.filter(function (item) {
+        return item !== id;
+    });
+}
+
+function removeEntry(id) {
+    removeFromQueue(id);
+    delete waitingRoomState.entries[id];
+}
+
+function ensureQueued(entry) {
+    if (entry.admittedUntil) {
+        return;
+    }
+    if (waitingRoomState.queue.indexOf(entry.id) === -1) {
+        waitingRoomState.queue.push(entry.id);
+    }
+}
+
+function cleanupWaitingRoom() {
+    const now = nowMs();
+
+    Object.keys(waitingRoomState.entries).forEach(function (id) {
+        const entry = waitingRoomState.entries[id];
+        if (!entry) {
+            return;
+        }
+
+        if (entry.admittedUntil && entry.admittedUntil <= now) {
+            removeEntry(id);
+            return;
+        }
+
+        if (!entry.admittedUntil && now - entry.lastSeen > WAITING_ROOM_STALE_MS) {
+            removeEntry(id);
+        }
+    });
+
+    waitingRoomState.queue = waitingRoomState.queue.filter(function (id) {
+        return Boolean(waitingRoomState.entries[id]);
+    });
+}
+
+function countActiveAdmissions() {
+    const now = nowMs();
+    return Object.keys(waitingRoomState.entries).filter(function (id) {
+        const entry = waitingRoomState.entries[id];
+        return Boolean(entry && entry.admittedUntil && entry.admittedUntil > now);
+    }).length;
+}
+
+function promoteWaitingUsers() {
+    let active = countActiveAdmissions();
+    const now = nowMs();
+
+    while (active < WAITING_ROOM_ACTIVE_SLOTS && waitingRoomState.queue.length > 0) {
+        const id = waitingRoomState.queue.shift();
+        const entry = waitingRoomState.entries[id];
+        if (!entry) {
+            continue;
+        }
+
+        entry.admittedUntil = now + WAITING_ROOM_ADMIT_TTL_MS;
+        active += 1;
+    }
+}
+
+function waitingRoomEntry(id, target) {
+    let entry = waitingRoomState.entries[id];
+    if (!entry) {
+        entry = {
+            id: id,
+            joinedAt: nowMs(),
+            lastSeen: nowMs(),
+            target: target,
+            admittedUntil: 0
+        };
+        waitingRoomState.entries[id] = entry;
+    }
+
+    entry.lastSeen = nowMs();
+    entry.target = target;
+    return entry;
+}
+
+function json(r, status, body) {
+    r.headersOut["Content-Type"] = "application/json";
+    r.headersOut["Cache-Control"] = "no-store";
+    r.return(status, JSON.stringify(body));
+}
+
+function queueStatus(r) {
+    cleanupWaitingRoom();
+
+    const args = r.args || {};
+    const cookies = parseCookies(r);
+    const target = normaliseTarget(args.target || WAITING_ROOM_TARGET_PREFIX);
+    const clientId = cookies[WAITING_ROOM_ID_COOKIE] || createClientId();
+
+    if (!cookies[WAITING_ROOM_ID_COOKIE]) {
+        setCookie(r, WAITING_ROOM_ID_COOKIE, clientId, 12 * 60 * 60);
+    }
+
+    const entry = waitingRoomEntry(clientId, target);
+    ensureQueued(entry);
+    promoteWaitingUsers();
+
+    if (entry.admittedUntil && entry.admittedUntil > nowMs()) {
+        removeFromQueue(clientId);
+        setCookie(
+            r,
+            WAITING_ROOM_ADMIT_COOKIE,
+            clientId,
+            Math.floor(WAITING_ROOM_ADMIT_TTL_MS / 1000)
+        );
+        json(r, 200, {
+            admitted: true,
+            target: target,
+            expires_at: entry.admittedUntil,
+            active_slots: WAITING_ROOM_ACTIVE_SLOTS
+        });
+        return;
+    }
+
+    json(r, 200, {
+        admitted: false,
+        position: queuePosition(clientId),
+        active_slots: WAITING_ROOM_ACTIVE_SLOTS,
+        queue_depth: waitingRoomState.queue.length
+    });
+}
+
+function queueLeave(r) {
+    const cookies = parseCookies(r);
+    const clientId = cookies[WAITING_ROOM_ID_COOKIE];
+
+    if (clientId) {
+        removeEntry(clientId);
+    }
+
+    clearCookie(r, WAITING_ROOM_ID_COOKIE);
+    clearCookie(r, WAITING_ROOM_ADMIT_COOKIE);
+    json(r, 200, {
+        left: true
+    });
+}
+
+function queueDemo(r) {
+    cleanupWaitingRoom();
+
+    const cookies = parseCookies(r);
+    const clientId = cookies[WAITING_ROOM_ID_COOKIE];
+    const admitCookie = cookies[WAITING_ROOM_ADMIT_COOKIE];
+    const entry = clientId ? waitingRoomState.entries[clientId] : null;
+
+    if (!clientId || !admitCookie || admitCookie !== clientId || !entry || !entry.admittedUntil || entry.admittedUntil <= nowMs()) {
+        clearCookie(r, WAITING_ROOM_ADMIT_COOKIE);
+        r.headersOut["Location"] = WAITING_ROOM_TARGET_PREFIX;
+        r.return(302, "");
+        return;
+    }
+
+    entry.lastSeen = nowMs();
+    r.headersOut["Content-Type"] = "text/html";
+    r.return(200, generateHtml(
+        "Queue Demo",
+        "You have been admitted through the waiting room. This demo slot stays active for a short time, then the next queued visitor can be admitted. Use the leave link below to free the slot immediately.<br><br><a href=\"/queue/leave-page\">Leave the demo and release my slot</a>",
+        ""
+    ));
+}
+
+function queueLeavePage(r) {
+    const cookies = parseCookies(r);
+    const clientId = cookies[WAITING_ROOM_ID_COOKIE];
+    if (clientId) {
+        removeEntry(clientId);
+    }
+
+    clearCookie(r, WAITING_ROOM_ID_COOKIE);
+    clearCookie(r, WAITING_ROOM_ADMIT_COOKIE);
+    r.headersOut["Location"] = WAITING_ROOM_TARGET_PREFIX;
+    r.return(302, "");
+}
+
 
 function summary(r) {
     var a, s, h;
@@ -125,6 +384,8 @@ function path_rule(r) {
     } else if (r.uri === "/redirected") {
         title = "Redirected Page";
         bodyText = "You have been redirected here.";
+    } else if (r.uri === WAITING_ROOM_TARGET_PREFIX) {
+        return queueDemo(r);
     } else if (r.uri === "/output-headers" || r.uri === "/waf-bypass") {
 
         const args = r.args || {};
@@ -492,6 +753,10 @@ async function hash(r) {
 
 export default {
     summary,
+    queueStatus,
+    queueLeave,
+    queueDemo,
+    queueLeavePage,
     // echo_body,
     // echo_headers,
     // echo_cookies,
