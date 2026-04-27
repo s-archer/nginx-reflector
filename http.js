@@ -7,6 +7,7 @@ const WAITING_ROOM_ID_COOKIE = "wr_id";
 const WAITING_ROOM_ADMIT_COOKIE = "wr_admit";
 const WAITING_ROOM_TARGET_PREFIX = "/queue-demo";
 const WAITING_ROOM_ACTIVE_SLOTS = 1;
+const WAITING_ROOM_MIN_WAIT_MS = 5 * 1000;
 const WAITING_ROOM_ADMIT_TTL_MS = 2 * 60 * 1000;
 const WAITING_ROOM_STALE_MS = 10 * 60 * 1000;
 const COMMON_RESPONSE_HEADERS = [
@@ -151,12 +152,18 @@ function promoteWaitingUsers() {
     const now = nowMs();
 
     while (active < WAITING_ROOM_ACTIVE_SLOTS && waitingRoomState.queue.length > 0) {
-        const id = waitingRoomState.queue.shift();
+        const id = waitingRoomState.queue[0];
         const entry = waitingRoomState.entries[id];
         if (!entry) {
+            waitingRoomState.queue.shift();
             continue;
         }
 
+        if (now - entry.joinedAt < WAITING_ROOM_MIN_WAIT_MS) {
+            break;
+        }
+
+        waitingRoomState.queue.shift();
         entry.admittedUntil = now + WAITING_ROOM_ADMIT_TTL_MS;
         active += 1;
     }
@@ -214,7 +221,8 @@ function queueStatus(r) {
             admitted: true,
             target: target,
             expires_at: entry.admittedUntil,
-            active_slots: WAITING_ROOM_ACTIVE_SLOTS
+            active_slots: WAITING_ROOM_ACTIVE_SLOTS,
+            min_wait_seconds: Math.ceil(WAITING_ROOM_MIN_WAIT_MS / 1000)
         });
         return;
     }
@@ -223,7 +231,9 @@ function queueStatus(r) {
         admitted: false,
         position: queuePosition(clientId),
         active_slots: WAITING_ROOM_ACTIVE_SLOTS,
-        queue_depth: waitingRoomState.queue.length
+        queue_depth: waitingRoomState.queue.length,
+        min_wait_seconds: Math.ceil(WAITING_ROOM_MIN_WAIT_MS / 1000),
+        waited_seconds: Math.floor((nowMs() - entry.joinedAt) / 1000)
     });
 }
 
