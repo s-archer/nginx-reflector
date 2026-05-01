@@ -32,6 +32,22 @@ resource "volterra_http_loadbalancer" "nginx-reflector" {
   }
 
   routes {
+    simple_route {
+      caching_disable = true
+      http_method = "ANY"
+      path {
+        prefix = "/waf-bypass"
+      }
+      origin_pools {
+        pool {
+          name = volterra_origin_pool.nginx-reflector.name
+          namespace = var.xc_namespace
+        }
+      }
+    }
+  }
+
+  routes {
     custom_route_object {
       route_ref {
         name      = volterra_route.waiting-room-route-tf.name
@@ -46,6 +62,31 @@ resource "volterra_http_loadbalancer" "nginx-reflector" {
         name      = volterra_route.query-match-route-tf.name
         namespace = var.xc_namespace
       }
+    }
+  }
+
+  routes {
+    custom_route_object {
+      route_ref {
+        name      = volterra_route.waf-enabled-and-cdn-bypass.name
+        namespace = var.xc_namespace
+      }
+    }
+  }
+
+  caching_policy {
+    default_cache_action {
+      cache_ttl_override = "120s"
+    }
+    custom_cache_rule {
+       cdn_cache_rules {
+          name      = volterra_cdn_cache_rule.reflect-cache.name
+          namespace = var.xc_namespace
+       }
+       cdn_cache_rules {
+          name      = volterra_cdn_cache_rule.reflect-bypass-cdn.name
+          namespace = var.xc_namespace
+       }
     }
   }
 
@@ -125,6 +166,34 @@ resource "volterra_route" "query-match-route-tf" {
   }
 }
 
+resource "volterra_route" "waf-enabled-and-cdn-bypass" {
+  name      = "query-match-route-tf"
+  namespace = var.xc_namespace
+
+  routes {
+    match {
+      http_method = "ANY"
+      path {
+        prefix = "/output-headers"
+      }
+    }
+    route_destination {
+      destinations {
+        cluster {
+          name = volterra_origin_pool.nginx-reflector.name
+          namespace = var.xc_namespace
+        }
+      }
+    }
+
+    response_headers_to_add {
+      name   = "Content-Type"
+      value  = "text/html"
+      append = false
+    }
+  }
+}
+
 resource "volterra_route" "waiting-room-route-tf" {
   name      = "waiting-room-route-tf"
   namespace = var.xc_namespace
@@ -172,6 +241,53 @@ HTML
       name   = "Cache-Control"
       value  = "no-store"
       append = false
+    }
+  }
+}
+
+resource "volterra_cdn_cache_rule" "reflect-bypass-cdn" {
+  name      = "reflect-bypass-cdn"
+  namespace = var.xc_namespace
+
+  cache_rules {
+    rule_name      = "reflect-bypass-cdn"
+    # This bypass does not appear to use routes... but is handled in CDN
+    cache_bypass = true
+    rule_expression_list {
+      expression_name = "waf-bypass"
+      cache_rule_expression {
+        path_match {
+          operator {
+            startswith = "/"
+          }
+        }
+      }
+    }
+  }
+}
+
+resource "volterra_cdn_cache_rule" "reflect-cache" {
+  name      = "reflect-cache"
+  namespace = var.xc_namespace
+
+  cache_rules {
+    rule_name      = "reflect-cache"
+    rule_expression_list {
+      expression_name = "cache-it-path"
+      cache_rule_expression {
+        path_match {
+          operator {
+            startswith = "/cache-it/"
+          }
+        }
+      }
+    }
+    eligible_for_cache {
+      scheme_proxy_host_uri {
+        cache_ttl = "120s"
+        ignore_response_cookie = true
+        cache_override = true
+      }
     }
   }
 }
