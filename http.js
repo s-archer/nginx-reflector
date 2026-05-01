@@ -83,6 +83,35 @@ function createClientId() {
     return `wr-${nowMs().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
+function createAdmitToken(id, expiresAt) {
+    return `${id}.${expiresAt}`;
+}
+
+function parseAdmitToken(value) {
+    if (!value) {
+        return null;
+    }
+
+    const lastDot = value.lastIndexOf(".");
+    if (lastDot === -1) {
+        return {
+            id: value,
+            expiresAt: 0
+        };
+    }
+
+    const id = value.slice(0, lastDot);
+    const expiresAt = parseInt(value.slice(lastDot + 1), 10);
+    if (!id || isNaN(expiresAt)) {
+        return null;
+    }
+
+    return {
+        id: id,
+        expiresAt: expiresAt
+    };
+}
+
 function normaliseTarget(target) {
     if (!target || target.indexOf(WAITING_ROOM_TARGET_PREFIX) !== 0) {
         return WAITING_ROOM_TARGET_PREFIX;
@@ -214,7 +243,7 @@ function queueStatus(r) {
         setCookie(
             r,
             WAITING_ROOM_ADMIT_COOKIE,
-            clientId,
+            createAdmitToken(clientId, entry.admittedUntil),
             Math.floor(WAITING_ROOM_ADMIT_TTL_MS / 1000)
         );
         json(r, 200, {
@@ -239,7 +268,8 @@ function queueStatus(r) {
 
 function queueLeave(r) {
     const cookies = parseCookies(r);
-    const clientId = cookies[WAITING_ROOM_ID_COOKIE] || cookies[WAITING_ROOM_ADMIT_COOKIE];
+    const admitToken = parseAdmitToken(cookies[WAITING_ROOM_ADMIT_COOKIE]);
+    const clientId = cookies[WAITING_ROOM_ID_COOKIE] || (admitToken && admitToken.id);
 
     if (clientId) {
         removeEntry(clientId);
@@ -256,11 +286,30 @@ function queueDemo(r) {
     cleanupWaitingRoom();
 
     const cookies = parseCookies(r);
-    const clientId = cookies[WAITING_ROOM_ID_COOKIE] || cookies[WAITING_ROOM_ADMIT_COOKIE];
-    const admitCookie = cookies[WAITING_ROOM_ADMIT_COOKIE];
-    const entry = clientId ? waitingRoomState.entries[clientId] : null;
+    const admitToken = parseAdmitToken(cookies[WAITING_ROOM_ADMIT_COOKIE]);
+    const clientId = cookies[WAITING_ROOM_ID_COOKIE] || (admitToken && admitToken.id);
+    let entry = clientId ? waitingRoomState.entries[clientId] : null;
 
-    if (!admitCookie || !clientId || admitCookie !== clientId || !entry || !entry.admittedUntil || entry.admittedUntil <= nowMs()) {
+    if (!admitToken || !clientId || admitToken.id !== clientId || admitToken.expiresAt <= nowMs()) {
+        clearCookie(r, WAITING_ROOM_ADMIT_COOKIE);
+        r.headersOut["Location"] = WAITING_ROOM_TARGET_PREFIX;
+        r.return(302, "");
+        return;
+    }
+
+    if (!entry) {
+        entry = {
+            id: clientId,
+            joinedAt: nowMs(),
+            lastSeen: nowMs(),
+            target: WAITING_ROOM_TARGET_PREFIX,
+            admittedUntil: admitToken.expiresAt
+        };
+        waitingRoomState.entries[clientId] = entry;
+    }
+
+    if (!entry.admittedUntil || entry.admittedUntil <= nowMs()) {
+        removeEntry(clientId);
         clearCookie(r, WAITING_ROOM_ADMIT_COOKIE);
         r.headersOut["Location"] = WAITING_ROOM_TARGET_PREFIX;
         r.return(302, "");
