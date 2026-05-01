@@ -178,10 +178,11 @@ resource "volterra_route" "waf-enabled-and-cdn-bypass" {
       }
     }
     route_destination {
+      auto_host_rewrite = false
       destinations {
         cluster {
           name = volterra_origin_pool.nginx-reflector.name
-          namespace = var.xc_namespace
+          namespace = var.xc_namespace     
         }
       }
     }
