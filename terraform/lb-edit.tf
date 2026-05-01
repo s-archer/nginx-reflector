@@ -49,6 +49,7 @@ resource "volterra_http_loadbalancer" "nginx-reflector" {
 
   routes {
     custom_route_object {
+      caching_disable = true
       route_ref {
         name      = volterra_route.waiting-room-route-tf.name
         namespace = var.xc_namespace
@@ -58,6 +59,7 @@ resource "volterra_http_loadbalancer" "nginx-reflector" {
 
   routes {
     custom_route_object {
+      caching_disable = true
       route_ref {
         name      = volterra_route.query-match-route-tf.name
         namespace = var.xc_namespace
@@ -67,6 +69,7 @@ resource "volterra_http_loadbalancer" "nginx-reflector" {
 
   routes {
     custom_route_object {
+      caching_disable = true
       route_ref {
         name      = volterra_route.waf-enabled-and-cdn-bypass.name
         namespace = var.xc_namespace
