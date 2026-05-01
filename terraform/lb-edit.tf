@@ -98,8 +98,24 @@ resource "volterra_http_loadbalancer" "nginx-reflector" {
     samesite_strict              = true
     add_secure                   = true
     add_httponly                 = true
-    disable_tampering_protection = true
+    enable_tampering_protection  = true
   }
+
+  protected_cookies {
+    name                         = "wr_id"
+    samesite_strict              = true
+    add_secure                   = true
+    add_httponly                 = true
+    enable_tampering_protection  = true
+  }
+
+    protected_cookies {
+      name                         = "wr_admit"
+      samesite_strict              = true
+      add_secure                   = true
+      add_httponly                 = true
+      enable_tampering_protection  = true
+    }
 
   cookie_stickiness {
     name            = "sticky"
