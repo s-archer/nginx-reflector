@@ -140,7 +140,7 @@ resource "volterra_http_loadbalancer" "nginx-reflector" {
 }
 
 resource "volterra_route" "query-match-route-tf" {
-  name      = "query-match-route-tf"
+  name      = "arch-query-match-route-tf"
   namespace = var.xc_namespace
 
   routes {
@@ -167,7 +167,7 @@ resource "volterra_route" "query-match-route-tf" {
 }
 
 resource "volterra_route" "waf-enabled-and-cdn-bypass" {
-  name      = "query-match-route-tf"
+  name      = "arch-waf-enable-and-cdn-bypass"
   namespace = var.xc_namespace
 
   routes {
