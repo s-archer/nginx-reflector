@@ -178,7 +178,7 @@ resource "volterra_route" "waf-enabled-and-cdn-bypass" {
       }
     }
     route_destination {
-      auto_host_rewrite = false
+      host_rewrite = "nginx-reflector.s-archer"
       destinations {
         cluster {
           name = volterra_origin_pool.nginx-reflector.name
