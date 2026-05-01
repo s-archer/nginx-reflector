@@ -83,6 +83,20 @@ function createClientId() {
     return `wr-${nowMs().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
+function clientJoinedAt(id) {
+    if (!id || id.indexOf("wr-") !== 0) {
+        return 0;
+    }
+
+    const parts = id.split("-");
+    if (parts.length < 3) {
+        return 0;
+    }
+
+    const joinedAt = parseInt(parts[1], 36);
+    return isNaN(joinedAt) ? 0 : joinedAt;
+}
+
 function createAdmitToken(id, expiresAt) {
     return `${id}.${expiresAt}`;
 }
@@ -201,9 +215,10 @@ function promoteWaitingUsers() {
 function waitingRoomEntry(id, target) {
     let entry = waitingRoomState.entries[id];
     if (!entry) {
+        const joinedAt = clientJoinedAt(id) || nowMs();
         entry = {
             id: id,
-            joinedAt: nowMs(),
+            joinedAt: joinedAt,
             lastSeen: nowMs(),
             target: target,
             admittedUntil: 0
