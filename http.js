@@ -414,8 +414,8 @@ function generateHtml(title, bodyText, scripts) {
             font-family: Arial, sans-serif;
             margin: 0; 
             padding: 0;
-            background-image: url('reflection.jpg');
-            background-size: cover;
+            background: #f7f9fb;
+            color: #17202a;
             display: flex;
             justify-content: center; /* Center horizontally */
             align-items: flex-start; /* Align container to the top */
@@ -437,6 +437,19 @@ function generateHtml(title, bodyText, scripts) {
             width: 32px;
             height: 32px;
         }
+        .nav-links {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .nav-links a {
+            color: #0b66c3;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
         .container {
             text-align: center;
         }
@@ -451,6 +464,10 @@ function generateHtml(title, bodyText, scripts) {
             <a href="https://reflect.archf5.com">
                 <img src="/home.png" alt="Home">
             </a>
+        </div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/queue-demo">Queue Demo</a>
         </div>
         <div class="container">
             <h1>${title}</h1>
